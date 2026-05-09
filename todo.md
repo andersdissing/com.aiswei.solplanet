@@ -67,13 +67,13 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 8 — Docs & release
 
-- [ ] `README.md` (GitHub, developer-facing) — what / compatibility / install / pairing / capabilities table / architecture / dev / data-mining / contributing / acknowledgements / license
-- [ ] `readme.txt` (placeholder for v1.1 App Store submission)
-- [ ] `docs/energy-modeling.md` — capability table + cumulative-vs-solar-export note + Homey doc URLs
-- [ ] `docs/pairing-ux.md` — three-step user flow, error states
-- [ ] `CHANGELOG.md` — v1.0.0 initial entry
-- [ ] Create GitHub repo (if it doesn't exist) and `git push -u origin main`
-- [ ] Tag `v1.0.0`
+- [x] `README.md` (GitHub, developer-facing) — what / compatibility / install / pairing / capabilities table / architecture / dev / data-mining / contributing / acknowledgements / license
+- [x] `readme.txt` (user-facing for App Store; v1.1 will polish)
+- [x] `docs/energy-modeling.md` — capability table + cumulative-vs-solar-export note + Homey doc URLs
+- [x] `docs/pairing-ux.md` — three-step user flow, error states
+- [x] `CHANGELOG.md` — v1.0.0 initial entry
+- [!] Create GitHub repo `andersdissing/com.aiswei.solplanet` (if not already) and `git push -u origin main` — user task
+- [!] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
 
 ## Phase 9 — v1.1 / Phase 2: Publishing readiness
 
