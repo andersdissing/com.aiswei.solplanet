@@ -8,7 +8,8 @@
     "en": "Solplanet"
   },
   "description": {
-    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time."
+    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time.",
+    "da": "Forbind din Solplanet / AISWEI hybride solcelleinverter til Homeys Energi-fane — se solproduktion, batteri, elnet og hjemmeforbrug i realtid."
   },
   "category": ["energy"],
   "brandColor": "#F6405F",
@@ -26,6 +27,23 @@
       "energy",
       "energy monitoring",
       "home consumption",
+      "Solplanet",
+      "AISWEI"
+    ],
+    "da": [
+      "sol",
+      "solceller",
+      "solpaneler",
+      "solcelleanlæg",
+      "inverter",
+      "hybrid inverter",
+      "batteri",
+      "hjemmebatteri",
+      "elnet",
+      "elmåler",
+      "energi",
+      "energiovervågning",
+      "hjemmeforbrug",
       "Solplanet",
       "AISWEI"
     ]
