@@ -17,7 +17,7 @@ v1.0 has **no custom flow cards** — only built-in Homey energy capabilities. F
 
 - Homey Pro `>= 12.0.0` (SDK 3)
 - Solplanet / AISWEI hybrid inverters reachable on the same LAN as Homey
-- Tested on: _(fill in once on-hardware validation runs — see Phase 6 in `todo.md`)_
+- Tested on: _(fill in once on-hardware validation runs — see Phase 6 in [`docs/todo.md`](./docs/todo.md))_
 
 ## Install
 
@@ -135,7 +135,7 @@ See `docs/data-mining.md` for the full workflow.
 
 ## Contributing
 
-All open work is tracked in **[`todo.md`](./todo.md)** — single source of truth, organized by phase. `project.md` captures the architectural decisions and the rationale behind them.
+All open work is tracked in **[`docs/todo.md`](./docs/todo.md)** — single source of truth, organized by phase. [`docs/project.md`](./docs/project.md) captures the architectural decisions and the rationale behind them.
 
 ## Acknowledgements
 

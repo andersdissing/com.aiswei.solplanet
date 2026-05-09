@@ -13,15 +13,16 @@ A Homey app for Solplanet / AISWEI **hybrid** solar inverters (PV + battery + gr
 
 ## Architecture
 
-Three drivers sharing one HTTP client, one API layer, one polling coordinator, and one pairing UI.
+Four drivers sharing one HTTP client, one API layer, one polling coordinator, and one pairing UI.
 
 | Driver id | Homey class | Energy block | Tile populated |
 |---|---|---|---|
 | `inverter` | `solarpanel` | (none — class is enough) | **Solar** |
 | `battery` | `battery` | `homeBattery: true`, `meterPowerImportedCapability: meter_power.charged`, `meterPowerExportedCapability: meter_power.discharged` | **Battery** |
 | `meter` | `sensor` | `cumulative: true`, `cumulativeImportedCapability: meter_power.imported`, `cumulativeExportedCapability: meter_power.exported` | **Grid** + (residual) **Home** |
+| `home` | `sensor` | (none — passive consumer; no `cumulative` flag, otherwise Homey would subtract this device from itself in the Home residual) | (n/a — own device tile only) |
 
-The `cumulative: true` flag on the `meter` driver is the single line of config that makes Homey's "Home" residual tile populate. **No custom capabilities** in v1 — `measure_battery` (built-in) replaces the reference's custom `battery_soc`.
+The `cumulative: true` flag on the `meter` driver is the single line of config that makes Homey's "Home" residual tile populate. The `home` driver exposes the same residual (`pv + grid − battery`) as a regular device tile + Insights graph for users who want to read current load directly. **No custom capabilities** in v1 — `measure_battery` (built-in) replaces the reference's custom `battery_soc`.
 
 ## Reference-app modeling bug we corrected
 
@@ -79,7 +80,9 @@ Ref: https://apps.developer.homey.app/wireless/energy/cumulative-meter
 
 ## Pairing
 
-Manual IP + serial entry per driver, no LAN discovery in v1 (matches reference UX). Each driver has its own copy of `pair/start.html` at `drivers/<id>/pair/start.html` (Homey requires per-driver views; v1 ships three identical copies, future cleanup is a prebuild script). All three drivers' `onPair` delegates to `lib/pairing.js` which is the single source of validation logic. The `battery` and `meter` driver pairing returns a friendly error if the inverter doesn't expose those subsystems. User repeats Add-device three times — README states this clearly.
+Each pairing dialog opens with an active LAN scan (`lib/discovery.js`): the host walks its /24 subnet at 64 concurrent probes, hits each candidate's `:8484/getdev.cgi?device=2` with a placeholder serial, and lists any host returning a Solplanet `inv[]` JSON shape — tap to pre-fill IP and serial. The manual IP + serial form is always present below the auto-detect list as a fallback (different subnet / restricted network / scan failure). All four drivers' `onPair` delegates to `lib/pairing.js` which is the single source of validation logic; `battery`, `meter`, and `home` pairings return a friendly error if the inverter doesn't expose the relevant subsystem. User repeats Add-device up to four times — README states this clearly.
+
+Each driver carries its own copy of `pair/start.html` at `drivers/<id>/pair/start.html` (Homey requires per-driver views). The canonical source lives at `scripts/templates/pair-start.html`; `scripts/sync-views.js` writes it into all four drivers and runs as the npm `prevalidate` / `prerun` hook so the per-driver copies cannot drift. Same pattern for the Repair-flow `refresh.html` views.
 
 ## Data mining
 
