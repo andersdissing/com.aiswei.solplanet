@@ -105,7 +105,7 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Create Homey Community support thread; set `homeyCommunityTopicId` in manifest
 - [ ] App Store metadata (description, tags, category)
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
-- [ ] mDNS / SSDP / DHCP-table-assisted discovery for IP auto-detection (nice-to-have)
+- [ ] mDNS / SSDP / DHCP-table-assisted discovery for IP auto-detection (nice-to-have) — explicitly deferred: user opted to keep manual IP+serial pairing as-is; revisit only if a v1.x user request justifies the implementation cost (would also need to capture the inverter's actual mDNS broadcasts).
 - [ ] Custom flow cards (deferred from v1.0)
 - [ ] Evaluate TypeScript migration
 
