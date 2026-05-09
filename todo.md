@@ -41,10 +41,10 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 5 — Pairing
 
-- [ ] `pair/start.html` shared form (IP + serial + optional device-nr override, default 2)
-- [ ] Wire each driver's `onPair` to `lib/pairing.js` filtered by class
-- [ ] `battery` / `meter` pairing returns empty list with friendly message if subsystem absent
-- [ ] Manual smoke test: pair inverter → battery → meter on a real system
+- [x] `pair/start.html` shared form (IP + serial; device-nr override deferred — hardcoded 2/3/4 in `SolplanetApi`)
+- [x] Wire each driver's `onPair` to `lib/pairing.js` filtered by role
+- [x] `battery` / `meter` pairing returns friendly error if subsystem absent
+- [!] Manual smoke test: pair inverter → battery → meter on a real system — blocked: requires real hardware (user task)
 
 ## Phase 6 — Energy validation
 
