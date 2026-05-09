@@ -1,60 +1,72 @@
 Solplanet for Homey
+===================
 
-Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy
-tab. See solar production, battery state, grid flow and home consumption
-in real time. Tariff/pricing is handled by your existing tariff app.
+Bring your Solplanet (AISWEI) hybrid solar inverter into Homey's Energy
+tab. See how much your panels produce, what's flowing through your
+battery, and what your house is actually using — live, in one place,
+no cloud account required.
+
+
+What you'll see
+- Solar    Current PV power, today and lifetime production.
+- Battery  State of charge, signed power (charging or discharging),
+           cumulative charged and discharged energy.
+- Grid     Live grid power and lifetime imported / exported energy.
+- Home     Your real-time household consumption, derived from the
+           inverter's own readings. Matches the "Load" reading in the
+           Solplanet mobile app.
+
+All four tiles in Homey's Energy tab populate; existing tariff apps
+(Tibber, Nordpool, …) compute costs as usual.
+
 
 What you need
-- A Solplanet / AISWEI inverter on the same LAN as Homey
+- A Solplanet / AISWEI hybrid inverter on the same Wi-Fi or Ethernet
+  network as your Homey
 - The inverter's LAN IP address (find it in your router's DHCP table)
 - The inverter's serial number (on the device label)
 
-How to add
-Run "Add device" four times — one device per role:
-  1. Solplanet Inverter         (Solar tile)
-  2. Solplanet Battery          (Battery tile; only if your system has one)
-  3. Solplanet Grid Meter       (Grid + Home tiles; only if your system
-                                 has one)
-  4. Solplanet Home Consumption (separate device tile showing the live
-                                 "current load" of your house, derived
-                                 from PV + grid - battery; needs a grid
-                                 meter)
 
-Each pairing dialog scans your local network and lists any Solplanet
-inverter it finds — tap to pre-fill the IP and serial, then click
-Continue. If auto-detect finds nothing or your inverter is on a
-different subnet, fill the form manually (IP from your router's DHCP
-table, serial from the inverter's label).
+Adding your inverter
+1. In Homey, tap "Add device" and choose Solplanet.
+2. The pairing screen scans your network automatically and lists any
+   Solplanet inverter it finds — tap it to fill in the IP and serial.
+3. If auto-detect doesn't find your inverter (different subnet,
+   restricted network), type the IP and serial in the form below.
+4. Tap Continue. Done.
 
-Battery / Grid Meter / Home Consumption pairings will tell you and
-steer you elsewhere if your inverter doesn't expose that subsystem.
+Repeat once per role:
+  Solplanet Inverter         feeds the Solar tile
+  Solplanet Battery          feeds the Battery tile  (only if your
+                             system has a battery)
+  Solplanet Grid Meter       feeds the Grid + Home tiles  (needs a
+                             grid meter wired into the inverter)
+  Solplanet Home Consumption separate device tile showing the live
+                             current load  (also needs a grid meter)
 
-Energy tab
-After adding the devices, all four Energy tiles populate:
-  - Solar:  current PV power and lifetime / today production
-  - Battery: state of charge, signed power, cumulative charge/discharge
-  - Grid:   whole-home power, cumulative imported and exported
-  - Home:   computed by Homey as the grid value minus all known consumers
+If your system doesn't have a battery or a grid meter, those pairings
+will tell you and steer you to skip them. Add only what you have.
 
-Reading the values
-The Grid Meter device's "Grid power" is a SIGNED value:
-  positive = importing FROM the grid, negative = exporting TO the grid.
-So -6170 W means your house is sending 6.17 kW back to the utility.
 
-The Home Consumption device shows how much power your house is
-actually using. Because the inverter does not report this directly
-the app derives it as PV + grid_signed - battery_signed. It is
-always >= 0 and matches the "Load" reading in the Solplanet mobile
-app within sampling jitter.
+Tariff and pricing
+This app emits clean kWh values; cost is computed by whichever tariff
+app you already use in Homey. Nothing to set up here.
 
-For more on how Homey derives the Energy-tab Home tile, see:
-  https://apps.developer.homey.app/the-basics/devices/energy
-  https://support.homey.app/hc/en-us/articles/19383696079132-Understanding-the-Homey-Energy-tab
 
-Limitations (v1.0)
-- Local LAN only; no cloud connection
-- One inverter per pairing; multi-inverter setups need to add each
-- No custom flow cards (planned for v1.1)
-- Pricing comes from your tariff app, not from this one
+Reading two similar-looking values
+The Grid Meter device shows "Grid power" — a SIGNED value: positive
+means importing from the grid, negative means exporting to it.
+The Home Consumption device shows the actual current load of your
+house, always positive. The two are different and both useful.
 
-Support / community: see https://github.com/andersdissing/com.aiswei.solplanet
+
+Notes for v1.0
+- Local network only — no cloud, no internet round-trip.
+- Multi-inverter setups: pair each inverter separately.
+- This release uses Homey's built-in energy flows; no custom flow
+  cards are added (planned for a later release).
+
+
+Support and community
+- Community thread: https://community.homey.app/t/solplanet-app/154698/
+- Issues / feature requests: https://github.com/andersdissing/com.aiswei.solplanet/issues

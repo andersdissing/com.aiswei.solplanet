@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <circle cx="128" cy="96" r="44" fill="#FFB400"/>
-  <g stroke="#FFB400" stroke-width="8" stroke-linecap="round">
-    <line x1="128" y1="20" x2="128" y2="40"/>
-    <line x1="128" y1="152" x2="128" y2="172"/>
-    <line x1="52" y1="96" x2="72" y2="96"/>
-    <line x1="184" y1="96" x2="204" y2="96"/>
-    <line x1="74" y1="42" x2="88" y2="56"/>
-    <line x1="168" y1="136" x2="182" y2="150"/>
-    <line x1="74" y1="150" x2="88" y2="136"/>
-    <line x1="168" y1="56" x2="182" y2="42"/>
+  <g fill="#000000">
+    <path d="M132 0 C196 16 240 60 256 124 L132 124 Z"/>
+    <path d="M256 132 C240 196 196 240 132 256 L132 132 Z"/>
+    <path d="M124 256 C60 240 16 196 0 132 L124 132 Z"/>
+    <path d="M0 124 C16 60 60 16 124 0 L124 124 Z"/>
+    <path d="M128 116 L140 128 L128 140 L116 128 Z"/>
   </g>
-  <path d="M48 230 L128 180 L208 230 Z" fill="#0B7AB8"/>
-  <rect x="64" y="220" width="128" height="20" fill="#0B7AB8"/>
 </svg>
