@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "compatibility": ">=12.0.0",
   "sdk": 3,
-  "platforms": ["local"],
+  "platforms": [
+    "local"
+  ],
   "name": {
     "en": "Solplanet"
   },
   "description": {
-    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time.",
+    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab - see solar production, battery, grid flow and home consumption in real time.",
     "da": "Forbind din Solplanet / AISWEI hybride solcelleinverter til Homeys Energi-fane — se solproduktion, batteri, elnet og hjemmeforbrug i realtid."
   },
-  "category": ["energy"],
+  "category": [
+    "energy"
+  ],
   "brandColor": "#F6405F",
   "tags": {
     "en": [
