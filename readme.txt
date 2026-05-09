@@ -10,14 +10,24 @@ What you need
 - The inverter's serial number (on the device label)
 
 How to add
-Run "Add device" three times — once per device class:
-  1. Solplanet Inverter   (Solar tile)
-  2. Solplanet Battery    (Battery tile, only if your system has one)
-  3. Solplanet Grid Meter (Grid + Home tiles, only if your system has one)
+Run "Add device" four times — one device per role:
+  1. Solplanet Inverter         (Solar tile)
+  2. Solplanet Battery          (Battery tile; only if your system has one)
+  3. Solplanet Grid Meter       (Grid + Home tiles; only if your system
+                                 has one)
+  4. Solplanet Home Consumption (separate device tile showing the live
+                                 "current load" of your house, derived
+                                 from PV + grid - battery; needs a grid
+                                 meter)
 
-Each pairing asks for the IP and serial. Battery and Grid Meter pairings
-will tell you and steer you elsewhere if your inverter doesn't expose
-that subsystem.
+Each pairing dialog scans your local network and lists any Solplanet
+inverter it finds — tap to pre-fill the IP and serial, then click
+Continue. If auto-detect finds nothing or your inverter is on a
+different subnet, fill the form manually (IP from your router's DHCP
+table, serial from the inverter's label).
+
+Battery / Grid Meter / Home Consumption pairings will tell you and
+steer you elsewhere if your inverter doesn't expose that subsystem.
 
 Energy tab
 After adding the devices, all four Energy tiles populate:
