@@ -95,7 +95,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 Goal: ready for publication on the Homey App Store.
 
-- [ ] Follow https://apps.developer.homey.app/app-store/publishing and other best practices when creating a Homey app
+- [x] Follow https://apps.developer.homey.app/app-store/publishing and other best practices — distilled into [`docs/publishing-checklist.md`](./publishing-checklist.md): status snapshot, CLI + GitHub Actions flow, dashboard steps, required-manifest re-verification, outstanding gaps before "Submit for Live", and test-build walkthrough.
 - [ ] Store-quality screenshots and assets (small / large / xlarge images, driver-tile images)
 - [x] Polished user-facing `readme.txt` — rewritten for App Store: benefit-led intro, "What you'll see" / "What you need" / "Adding your inverter" sections, four-driver list, Grid-power-vs-Home-consumption note, community + issues links. Validates clean.
 - [x] Brand color — Radical Red `#F6405F` (manifest, pair/repair UI, `create-icon.ps1` placeholder colour). Done in Phase 4 commit `bc1e55f`.
