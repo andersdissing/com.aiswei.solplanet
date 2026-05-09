@@ -98,7 +98,10 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Follow https://apps.developer.homey.app/app-store/publishing and other best practices when creating a Homey app
 - [ ] Store-quality screenshots and assets (small / large / xlarge images, driver-tile images)
 - [ ] Polished user-facing `readme.txt`
-- [ ] Brand finalization (final brand color, icon, app name)
+- [x] Brand color — Radical Red `#F6405F` (manifest, pair/repair UI, `create-icon.ps1` placeholder colour). Done in Phase 4 commit `bc1e55f`.
+- [ ] Redraw **app icon** (`assets/icon.svg`) — sun theme, transparent background, use full canvas, no text, readable against the Radical Red brandColor. Use `Icon-template.png` (project root) as visual reference. Follow Homey's [app-store guidelines](https://apps.developer.homey.app/app-store/guidelines.md). Replace the placeholder shipped during scaffolding.
+- [ ] Redraw **driver tile icons** (`drivers/<id>/assets/images/{small,large}.png`) — single sun motif consistent across all four drivers; differentiation between drivers is via name + capabilities, not the icon. Sizes 75×75 / 500×500 px PNGs with white background per Homey guidelines. Replace the flat-coloured `create-icon.ps1` placeholders.
+- [ ] App name finalization — currently "Solplanet" in `.homeycompose/app.json`. Verify before App Store submission.
 - [ ] Create Homey Community support thread; set `homeyCommunityTopicId` in manifest
 - [ ] App Store metadata (description, tags, category)
 - [ ] `homey app validate --level publish` passes clean

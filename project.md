@@ -125,6 +125,39 @@ Used for:
 
 Decided pre-v1.1 (replaces the prior AISWEI blue `#0B7AB8` placeholder). Existing icon PNGs in the repo remain unchanged — `create-icon.ps1` is updated so a future `& .\create-icon.ps1` run will produce Radical Red placeholders.
 
+## Icons
+
+### App icon (`assets/icon.svg`)
+
+To be redrawn from scratch — current file in the repo is a placeholder generated during scaffolding. Use **`Icon-template.png`** in the project root as the visual reference for the redraw.
+
+Per Homey's [app-store guidelines](https://apps.developer.homey.app/app-store/guidelines.md):
+- **Format:** SVG with **transparent background**, using the full canvas (no padding around the artwork).
+- **No background fill** — Homey composites the SVG over the `brandColor` (Radical Red `#F6405F`).
+- **Avoid text** where the iconography alone can convey the purpose.
+- **Readable** against the brand-color backdrop. Black, white or coloured strokes that contrast against `#F6405F` work best.
+- **Never reuse a driver tile icon** as the app icon, and vice versa.
+
+### Driver tile icons
+
+Each of the four drivers has its own tile icon at `drivers/<id>/assets/images/{small,large}.png`.
+
+**Theme:** the driver icon should be a **stylised sun** — consistent across the four drivers (inverter, battery, meter, home consumption) since the whole app is about solar production. Differentiation between the four drivers is communicated through Homey's UI (driver names, capabilities), not through varying the icon.
+
+Per Homey's guidelines:
+- **Format:** PNG (or JPG), **white background**.
+- **Sizes:** small `75 × 75 px`, large `500 × 500 px` (and `1000 × 1000 px` xlarge for store listings).
+- **Recognisable at distance** — keep silhouettes simple, avoid fine detail that vanishes when the tile is small.
+- **No app icon, no Homey branding, no device-line photography from other manufacturers.**
+
+`create-icon.ps1` ships flat-coloured placeholders in Radical Red with a label; treat them as scaffolding, not as the final tile icons.
+
+### References
+
+- App-store branding & icon guidelines: https://apps.developer.homey.app/app-store/guidelines.md
+- Drivers & devices (icon placement): https://apps.developer.homey.app/the-basics/devices.md
+- App manifest icon paths: https://apps.developer.homey.app/the-basics/app/manifest
+
 ## Project metadata
 
 - App id: `com.aiswei.solplanet`
