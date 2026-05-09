@@ -40,6 +40,8 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `drivers/meter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `sensor`, `energy.cumulative: true`, `cumulativeImported|ExportedCapability` mapped to `meter_power.imported`/`exported`
 - [x] `locales/en.json` and `locales/da.json` — empty stubs in v1 (capability titles inlined in driver.compose.json; expand for runtime strings if needed)
 - [x] `create-icon.ps1` extended to generate driver tile images (75×75 / 500×500)
+- [x] Add a configuration option to exclude selling electricity from the "Electricity Total" Energy-tab — meter device setting `exclude_grid_exports` (default off); when on, `meter_power.exported`/`meter_power.exported_today` are not written, freezing the counter
+- [x] For the inverter driver, rename the `meter_power` capability title from "Energy" to "Energy, current load"
 
 ## Phase 5 — Pairing
 
@@ -51,13 +53,12 @@ Single source of truth for pending implementation work. See [project.md](./proje
 ## Phase 6 — Energy validation
 
 - [x] `homey app validate --level publish` passes
-- [!] **Solar** tile populates with inverter `measure_power` + `meter_power` — blocked: real hardware
-- [!] **Battery** tile shows SoC + signed `measure_power` (charging positive, discharging negative) — blocked: real hardware
-- [!] **Grid** tile shows imported/exported cumulative meter values — blocked: real hardware
-- [!] **Home** tile populates (residual) — bug-fix-vs-reference indicator — blocked: real hardware
+- [ ] **Solar** tile populates with inverter `measure_power` + `meter_power` — blocked: real hardware
+- [ ] **Battery** tile shows SoC + signed `measure_power` (charging positive, discharging negative) — blocked: real hardware
+- [ ] **Grid** tile shows imported/exported cumulative meter values — blocked: real hardware
+- [ ] **Home** tile populates (residual) — bug-fix-vs-reference indicator — blocked: real hardware
 - [x] Verify battery `measure_power` sign matches Homey convention — flipped `BATTERY_POWER_SIGN` to `-1` after observing Solplanet reports `pb` positive when discharging
 - [ ] Future: factor pair/start.html into a single source via prebuild script (currently 3 identical copies, one per driver)
-- [ ] Add a configuration option to exclude saling electricty are tracked under the "Electricity Total" Energy-tab
 
 ## Phase 7 — Data miner
 
@@ -79,8 +80,8 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `homey app validate --level verified` passes (added `platforms`, `support`, per-driver `platforms` + `connectivity`)
 - [x] GitHub Actions workflows added via `homey app add-github-workflows` (validate / publish / version)
 - [!] Add `HOMEY_PAT` secret to GitHub repo before the publish workflow can run (PAT from https://tools.developer.homey.app/me) — user task
-- [!] Create GitHub repo `andersdissing/com.aiswei.solplanet` (if not already) and `git push -u origin main` — user task
-- [!] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
+- [ ] Create GitHub repo `andersdissing/com.aiswei.solplanet` (if not already) and `git push -u origin main` — user task
+- [ ] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
 
 ## Phase 9 — v1.1 / Phase 2: Publishing readiness
 

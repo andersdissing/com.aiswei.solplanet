@@ -15,19 +15,27 @@ class MeterDeviceImpl extends InverterDevice {
       return;
     }
 
+    const excludeExports = this.getSetting('exclude_grid_exports') === true;
+
     await this.setCapabilityWithCatch('measure_power', m.gridPower_W);
     await this.setMonotonicCapability('meter_power.imported', m.importedTotalKWh);
-    await this.setMonotonicCapability('meter_power.exported', m.exportedTotalKWh);
+
+    if (!excludeExports) {
+      await this.setMonotonicCapability('meter_power.exported', m.exportedTotalKWh);
+    }
 
     if (m.importedTodayKWh !== null) {
       await this.setCapabilityWithCatch('meter_power.imported_today', m.importedTodayKWh);
     } else if (this.isMidnightWindow()) {
       await this.setCapabilityWithCatch('meter_power.imported_today', 0);
     }
-    if (m.exportedTodayKWh !== null) {
-      await this.setCapabilityWithCatch('meter_power.exported_today', m.exportedTodayKWh);
-    } else if (this.isMidnightWindow()) {
-      await this.setCapabilityWithCatch('meter_power.exported_today', 0);
+
+    if (!excludeExports) {
+      if (m.exportedTodayKWh !== null) {
+        await this.setCapabilityWithCatch('meter_power.exported_today', m.exportedTodayKWh);
+      } else if (this.isMidnightWindow()) {
+        await this.setCapabilityWithCatch('meter_power.exported_today', 0);
+      }
     }
   }
 

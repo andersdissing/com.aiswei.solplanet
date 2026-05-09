@@ -164,6 +164,11 @@
         "measure_temperature"
       ],
       "capabilitiesOptions": {
+        "meter_power": {
+          "title": {
+            "en": "Energy, current load"
+          }
+        },
         "meter_power.today": {
           "title": {
             "en": "Energy today"
@@ -341,6 +346,25 @@
               "min": 5,
               "max": 300,
               "value": 60
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Energy total"
+          },
+          "children": [
+            {
+              "id": "exclude_grid_exports",
+              "type": "checkbox",
+              "label": {
+                "en": "Exclude grid exports from Energy total"
+              },
+              "hint": {
+                "en": "When enabled, electricity sold back to the grid is not written to the exported counters and so is excluded from Homey's Electricity Total. Toggling this on freezes the exported counter at its last value; toggling off resumes writing the live meter reading."
+              },
+              "value": false
             }
           ]
         }
