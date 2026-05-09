@@ -15,9 +15,6 @@
     "mine": "node scripts/data-miner.js",
     "compare": "node scripts/compare.js"
   },
-  "dependencies": {
-    "node-fetch": "^2.7.0"
-  },
   "homepage": "https://github.com/andersdissing/com.aiswei.solplanet",
   "repository": {
     "type": "git",

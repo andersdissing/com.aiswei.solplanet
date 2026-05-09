@@ -20,10 +20,10 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 2 — HTTP & API layer
 
-- [ ] `lib/SolplanetClient.js` — `cleanIp`, `buildUrl`, `fetch` with 5 s timeout
-- [ ] `lib/SolplanetApi.js` — six methods: `getInverterInfo|Data`, `getMeterInfo|Data`, `getBatteryInfo|Data`
-- [ ] `lib/fields.js` — pure parse functions with documented scale factors (`parseInverterData`, `parseMeterData`, `parseBatteryData`)
-- [ ] `lib/SolplanetCoordinator.js` — singleton poller keyed by `ip:sn`; subscribe / unsubscribe; `Promise.allSettled` for the 3 endpoints; failure backoff and availability handling
+- [x] `lib/SolplanetClient.js` — `cleanIp`, `buildUrl`, `fetch` with 5 s timeout (uses Node 18+ global `fetch` and `AbortController`; no `node-fetch` dep)
+- [x] `lib/SolplanetApi.js` — six methods: `getInverterInfo|Data`, `getMeterInfo|Data`, `getBatteryInfo|Data` plus `validate()`
+- [x] `lib/fields.js` — pure parse functions with documented scale factors (`parseInverterInfo|Data`, `parseMeterData`, `parseBatteryData`, `hasBatteryStorage`)
+- [x] `lib/SolplanetCoordinator.js` — singleton poller keyed by `ip:sn`; `subscribe` returns unsubscribe handle; `Promise.allSettled` for the 3 endpoints; 3-failure backoff to 5 min with availability callbacks
 
 ## Phase 3 — Device base
 
