@@ -113,7 +113,7 @@ Goal: ready for publication on the Homey App Store.
 
 ## Decisions to confirm during implementation (non-blocking)
 
-- [ ] Author / email for manifest — default `Anders Dissing <ameq@ameq.dk>`
+- [x] Author / email for manifest — set as `Anders Dissing <ameq@ameq.dk>` in `.homeycompose/app.json`.
 - [x] Brand color — confirmed as **Radical Red `#F6405F`** (RGB 246/64/95). Manifest `brandColor`, all pair/repair view buttons, and `create-icon.ps1` placeholder color updated. Existing icon PNGs left unchanged per the "do not change the icon" instruction; running `create-icon.ps1` later will regenerate them in Radical Red. See `project.md` for full spec.
-- [ ] GitHub repo `andersdissing/com.aiswei.solplanet` — verify exists or `gh repo create` before first push
+- [x] GitHub repo `andersdissing/com.aiswei.solplanet` — exists and `main` is pushed.
 - [ ] Homey Community Topic id — leave unset in v1.0; create when submitting v1.1
