@@ -105,11 +105,18 @@ Goal: ready for publication on the Homey App Store.
 - [x] Update **Tags** in `.homeycompose/app.json` — added a 14-entry English tag list (solar, PV, inverter, hybrid inverter, battery, home battery, grid, grid meter, energy, energy monitoring, home consumption, Solplanet, AISWEI, solar panels). Add Danish (`da`) translations during App Store polish.
 - [x] **Permissions** in `.homeycompose/app.json` — verified empty (`[]`) is correct: the app makes HTTP calls to the inverter on the LAN, which Homey allows by default; no special API permissions needed.
 - [x] **Environment** in `.homeycompose/app.json` — skipped per user decision; not a standard Homey manifest field.
-- [ ] Find a better small / large image for the **app** — something with a grassy field and solar panels (reference: https://www.istockphoto.com/photo/solar-panels-in-a-field-of-grass-gm184370293-17486314 — but use a watermark-free / properly-licensed source).
-- [ ] Find a better small / large image for **driver `inverter`**.
-- [ ] Find a better small / large image for **driver `battery`**.
-- [ ] Find a better small / large image for **driver `meter`**.
-- [ ] Find a better small / large image for **driver `home`**.
+- [ ] Find a better small / large / xlarge image for the **app** (`assets/images/{small,large,xlarge}.png`, sizes 250×175 / 500×350 / 1000×700, no white-background requirement — Homey says "lively, clearly tied to the app's purpose").
+   - Specific candidate: ["A row of solar panels in a field" by Michael Förtsch — Unsplash](https://unsplash.com/photos/a-row-of-solar-panels-in-a-field-GdaQ2ohAGeM)
+   - Other galleries: [Unsplash · solar-field](https://unsplash.com/s/photos/solar-field) · [Pexels · solar farm](https://www.pexels.com/search/solar%20farm/) · [Pixabay · solar rooftop](https://pixabay.com/images/search/solar%20rooftop/)
+- [ ] Find a better small / large image for **driver `inverter`** (`drivers/inverter/assets/images/{small,large}.png`, **75×75 / 500×500 PNG, square, white background per Homey guidelines** — pick a product shot of a wall-mounted inverter).
+   - [Pixabay · solar inverter](https://pixabay.com/images/search/solar%20inverter/) · [Pexels · solar inverter](https://www.pexels.com/search/solar%20inverter/) · [Unsplash · solar-inverter](https://unsplash.com/s/photos/solar-inverter)
+- [ ] Find a better small / large image for **driver `battery`** (75×75 / 500×500, square, white background — wall-mount home-battery product shot).
+   - [Pixabay · lifepo4 battery kits](https://pixabay.com/images/search/lifepo4%20battery%20kits/) · [Pixabay · battery energy storage](https://pixabay.com/images/search/battery%20energy%20storage/) · [Unsplash · battery-storage](https://unsplash.com/s/photos/battery-storage)
+- [ ] Find a better small / large image for **driver `meter`** (75×75 / 500×500, square, white background — clean digital-meter front face).
+   - [Pixabay · smart meter](https://pixabay.com/images/search/smart%20meter/) · [Unsplash · electricity-meter](https://unsplash.com/s/photos/electricity-meter)
+   - Vector option: [Pixabay · electric meter vector (6211929)](https://pixabay.com/vectors/electric-meter-electricity-6211929/)
+- [ ] Find a better small / large image for **driver `home`** (75×75 / 500×500, square, white background — could be a stylised house-with-solar icon since this is a derived/synthetic device, not a physical thing).
+   - [Pixabay · solar house](https://pixabay.com/images/search/solar+house/) · [Unsplash · solar-panel-house](https://unsplash.com/s/photos/solar-panel-house) · [Pixabay · solar rooftop](https://pixabay.com/images/search/solar%20rooftop/)
 - [x] App Store metadata sweep (description, tags, category) — Danish (`da`) translations added for `description` and `tags`; `category: ["energy"]` confirmed correct; `name` left as the brand "Solplanet" (no translation needed). Manifest validates clean at verified level.
 - [x] Optional: localised `readme.<lang>.txt` — declined per user decision; English-only is sufficient.
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
