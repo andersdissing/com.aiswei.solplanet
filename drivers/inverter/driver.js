@@ -10,6 +10,7 @@ class InverterDriver extends Homey.Driver {
     const handlers = createPairingHandlers('inverter');
     session.setHandler('validate', handlers.validate);
     session.setHandler('list_devices', handlers.listDevices);
+    session.setHandler('discover', handlers.discover);
   }
 
   async onRepair(session, device) {

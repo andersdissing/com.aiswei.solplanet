@@ -10,6 +10,7 @@ class BatteryDriver extends Homey.Driver {
     const handlers = createPairingHandlers('battery');
     session.setHandler('validate', handlers.validate);
     session.setHandler('list_devices', handlers.listDevices);
+    session.setHandler('discover', handlers.discover);
   }
 
   async onRepair(session, device) {

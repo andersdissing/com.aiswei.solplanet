@@ -105,7 +105,7 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Create Homey Community support thread; set `homeyCommunityTopicId` in manifest
 - [ ] App Store metadata (description, tags, category)
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
-- [ ] mDNS / SSDP / DHCP-table-assisted discovery for IP auto-detection (nice-to-have) — explicitly deferred: user opted to keep manual IP+serial pairing as-is; revisit only if a v1.x user request justifies the implementation cost (would also need to capture the inverter's actual mDNS broadcasts).
+- [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
 - [ ] Custom flow cards (deferred from v1.0)
 - [ ] Evaluate TypeScript migration
 
