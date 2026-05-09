@@ -4,6 +4,8 @@
     "en": "Solplanet Inverter"
   },
   "class": "solarpanel",
+  "platforms": ["local"],
+  "connectivity": ["lan"],
   "capabilities": [
     "measure_power",
     "meter_power",

@@ -75,6 +75,9 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `docs/energy-modeling.md` — capability table + cumulative-vs-solar-export note + Homey doc URLs
 - [x] `docs/pairing-ux.md` — three-step user flow, error states
 - [x] `CHANGELOG.md` — v1.0.0 initial entry
+- [x] `homey app validate --level verified` passes (added `platforms`, `support`, per-driver `platforms` + `connectivity`)
+- [x] GitHub Actions workflows added via `homey app add-github-workflows` (validate / publish / version)
+- [!] Add `HOMEY_PAT` secret to GitHub repo before the publish workflow can run (PAT from https://tools.developer.homey.app/me) — user task
 - [!] Create GitHub repo `andersdissing/com.aiswei.solplanet` (if not already) and `git push -u origin main` — user task
 - [!] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
 

@@ -4,6 +4,8 @@
     "en": "Solplanet Battery"
   },
   "class": "battery",
+  "platforms": ["local"],
+  "connectivity": ["lan"],
   "capabilities": [
     "measure_battery",
     "measure_power",

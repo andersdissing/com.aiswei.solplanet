@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "compatibility": ">=12.0.0",
   "sdk": 3,
+  "platforms": [
+    "local"
+  ],
   "name": {
     "en": "Solplanet"
   },
@@ -25,6 +28,7 @@
     "email": "ameq@ameq.dk"
   },
   "source": "https://github.com/andersdissing/com.aiswei.solplanet",
+  "support": "https://github.com/andersdissing/com.aiswei.solplanet/issues",
   "bugs": {
     "url": "https://github.com/andersdissing/com.aiswei.solplanet/issues"
   },
@@ -35,6 +39,12 @@
         "en": "Solplanet Battery"
       },
       "class": "battery",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
       "capabilities": [
         "measure_battery",
         "measure_power",
@@ -141,6 +151,12 @@
         "en": "Solplanet Inverter"
       },
       "class": "solarpanel",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
       "capabilities": [
         "measure_power",
         "meter_power",
@@ -225,6 +241,12 @@
         "en": "Solplanet Grid Meter"
       },
       "class": "sensor",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
       "capabilities": [
         "measure_power",
         "meter_power.imported",

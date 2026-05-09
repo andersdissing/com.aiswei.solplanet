@@ -4,6 +4,8 @@
     "en": "Solplanet Grid Meter"
   },
   "class": "sensor",
+  "platforms": ["local"],
+  "connectivity": ["lan"],
   "capabilities": [
     "measure_power",
     "meter_power.imported",
