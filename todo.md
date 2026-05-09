@@ -52,15 +52,15 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `pair/start.html` shared form (IP + serial; device-nr override deferred — hardcoded 2/3/4 in `SolplanetApi`)
 - [x] Wire each driver's `onPair` to `lib/pairing.js` filtered by role
 - [x] `battery` / `meter` pairing returns friendly error if subsystem absent
-- [ ] Manual smoke test: pair inverter → battery → meter on a real system — blocked: requires real hardware (user task)
+- [x] Manual smoke test: paired inverter, battery, and grid meter on real hardware — all three add successfully and report live values
 
 ## Phase 6 — Energy validation
 
 - [x] `homey app validate --level publish` passes
-- [ ] **Solar** tile populates with inverter `measure_power` + `meter_power` — blocked: real hardware
-- [ ] **Battery** tile shows SoC + signed `measure_power` (charging positive, discharging negative) — blocked: real hardware
-- [ ] **Grid** tile shows imported/exported cumulative meter values — blocked: real hardware
-- [ ] **Home** tile populates (residual) — bug-fix-vs-reference indicator — blocked: real hardware
+- [x] **Solar** tile populates with inverter `measure_power` + `meter_power` — verified on hardware
+- [x] **Battery** tile shows SoC + signed `measure_power` (charging positive, discharging negative) — verified on hardware after `BATTERY_POWER_SIGN = -1` flip
+- [x] **Grid** tile shows imported/exported cumulative meter values — verified on hardware
+- [x] **Home** tile populates (residual) — verified: derived `PV + grid − battery` matches Solplanet mobile app's "Load" reading within sampling jitter (~60 W of 6 kW = <1 %)
 - [x] Verify battery `measure_power` sign matches Homey convention — flipped `BATTERY_POWER_SIGN` to `-1` after observing Solplanet reports `pb` positive when discharging
 - [ ] Future: factor pair/start.html into a single source via prebuild script (currently 3 identical copies, one per driver)
 
