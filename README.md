@@ -38,7 +38,7 @@ You'll add **three devices** — one for each Energy-tab tile this app feeds. Ru
 2. **Battery** (Battery tile) — only succeeds if your inverter actually reports a battery
 3. **Grid Meter** (Grid + Home tiles) — only succeeds if your inverter actually reports a grid meter
 
-Each pairing asks for the inverter's LAN IP (find it in your router's DHCP table) and serial number (printed on the inverter's label). The shared pair UI validates the connection before adding the device, so a mistyped IP or serial fails fast with a friendly error.
+Each pairing asks for the inverter's LAN IP (find it in your router's DHCP table) and serial number (printed on the inverter's label). The pair UI validates the connection before adding the device, so a mistyped IP or serial fails fast with a friendly error.
 
 If your system is PV-only, only the Inverter pairing will succeed; the others will tell you the subsystem isn't reported and steer you to skip them.
 

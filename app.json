@@ -1,0 +1,328 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.aiswei.solplanet",
+  "version": "1.0.0",
+  "compatibility": ">=12.0.0",
+  "sdk": 3,
+  "name": {
+    "en": "Solplanet"
+  },
+  "description": {
+    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time."
+  },
+  "category": [
+    "energy"
+  ],
+  "brandColor": "#0B7AB8",
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Anders Dissing",
+    "email": "ameq@ameq.dk"
+  },
+  "source": "https://github.com/andersdissing/com.aiswei.solplanet",
+  "bugs": {
+    "url": "https://github.com/andersdissing/com.aiswei.solplanet/issues"
+  },
+  "drivers": [
+    {
+      "id": "battery",
+      "name": {
+        "en": "Solplanet Battery"
+      },
+      "class": "battery",
+      "capabilities": [
+        "measure_battery",
+        "measure_power",
+        "meter_power.charged",
+        "meter_power.discharged",
+        "meter_power.charged_today",
+        "meter_power.discharged_today"
+      ],
+      "capabilitiesOptions": {
+        "meter_power.charged": {
+          "title": {
+            "en": "Energy charged"
+          }
+        },
+        "meter_power.discharged": {
+          "title": {
+            "en": "Energy discharged"
+          }
+        },
+        "meter_power.charged_today": {
+          "title": {
+            "en": "Charged today"
+          }
+        },
+        "meter_power.discharged_today": {
+          "title": {
+            "en": "Discharged today"
+          }
+        }
+      },
+      "energy": {
+        "homeBattery": true,
+        "meterPowerImportedCapability": "meter_power.charged",
+        "meterPowerExportedCapability": "meter_power.discharged"
+      },
+      "images": {
+        "small": "/drivers/battery/assets/images/small.png",
+        "large": "/drivers/battery/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection"
+          },
+          "children": [
+            {
+              "id": "ip_address",
+              "type": "text",
+              "label": {
+                "en": "IP address"
+              },
+              "value": ""
+            },
+            {
+              "id": "serial_number",
+              "type": "text",
+              "label": {
+                "en": "Serial number"
+              },
+              "value": ""
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Polling"
+          },
+          "children": [
+            {
+              "id": "poll_interval_seconds",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)"
+              },
+              "min": 5,
+              "max": 300,
+              "value": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inverter",
+      "name": {
+        "en": "Solplanet Inverter"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_power",
+        "meter_power",
+        "meter_power.today",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "meter_power.today": {
+          "title": {
+            "en": "Energy today"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/inverter/assets/images/small.png",
+        "large": "/drivers/inverter/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection"
+          },
+          "children": [
+            {
+              "id": "ip_address",
+              "type": "text",
+              "label": {
+                "en": "IP address"
+              },
+              "value": ""
+            },
+            {
+              "id": "serial_number",
+              "type": "text",
+              "label": {
+                "en": "Serial number"
+              },
+              "value": ""
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Polling"
+          },
+          "children": [
+            {
+              "id": "poll_interval_seconds",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)"
+              },
+              "min": 5,
+              "max": 300,
+              "value": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meter",
+      "name": {
+        "en": "Solplanet Grid Meter"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_power.imported",
+        "meter_power.exported",
+        "meter_power.imported_today",
+        "meter_power.exported_today"
+      ],
+      "capabilitiesOptions": {
+        "meter_power.imported": {
+          "title": {
+            "en": "Imported"
+          }
+        },
+        "meter_power.exported": {
+          "title": {
+            "en": "Exported"
+          }
+        },
+        "meter_power.imported_today": {
+          "title": {
+            "en": "Imported today"
+          }
+        },
+        "meter_power.exported_today": {
+          "title": {
+            "en": "Exported today"
+          }
+        }
+      },
+      "energy": {
+        "cumulative": true,
+        "cumulativeImportedCapability": "meter_power.imported",
+        "cumulativeExportedCapability": "meter_power.exported"
+      },
+      "images": {
+        "small": "/drivers/meter/assets/images/small.png",
+        "large": "/drivers/meter/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection"
+          },
+          "children": [
+            {
+              "id": "ip_address",
+              "type": "text",
+              "label": {
+                "en": "IP address"
+              },
+              "value": ""
+            },
+            {
+              "id": "serial_number",
+              "type": "text",
+              "label": {
+                "en": "Serial number"
+              },
+              "value": ""
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Polling"
+          },
+          "children": [
+            {
+              "id": "poll_interval_seconds",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)"
+              },
+              "min": 5,
+              "max": 300,
+              "value": 60
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

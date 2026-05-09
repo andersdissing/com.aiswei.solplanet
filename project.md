@@ -79,7 +79,7 @@ Ref: https://apps.developer.homey.app/wireless/energy/cumulative-meter
 
 ## Pairing
 
-Manual IP + serial entry per driver, no LAN discovery in v1 (matches reference UX). Shared HTML form `pair/start.html`; per-driver `onPair` delegates to `lib/pairing.js`. The `battery` and `meter` driver pairing returns an empty list with a friendly error if the inverter doesn't expose those subsystems. User repeats Add-device three times — README states this clearly.
+Manual IP + serial entry per driver, no LAN discovery in v1 (matches reference UX). Each driver has its own copy of `pair/start.html` at `drivers/<id>/pair/start.html` (Homey requires per-driver views; v1 ships three identical copies, future cleanup is a prebuild script). All three drivers' `onPair` delegates to `lib/pairing.js` which is the single source of validation logic. The `battery` and `meter` driver pairing returns a friendly error if the inverter doesn't expose those subsystems. User repeats Add-device three times — README states this clearly.
 
 ## Data mining
 

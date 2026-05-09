@@ -12,9 +12,11 @@ A hybrid inverter exposes three subsystems (PV / battery / grid meter), each mod
 
 Each pairing presents the same form: **IP address** and **serial number**. The driver's own role determines what's validated.
 
-## The shared form
+## The form
 
-`pair/start.html` is the single HTML view used by all three drivers' "start" pair step. It contains two text inputs + a Continue button + an inline error message area. Submitting the form emits a `validate` event with the entered values; Homey routes that to the active driver's pair-session handler in `drivers/<role>/driver.js`, which delegates to `lib/pairing.js`.
+Homey requires pair views at `drivers/<id>/pair/<view>.html`, so v1 ships three identical copies of `start.html` — one per driver. The validation logic, however, lives once in `lib/pairing.js`; each driver's `onPair` delegates to it. Cleanup to a single source via a prebuild copy step is tracked as a future v1.x task.
+
+The form contains two text inputs + a Continue button + an inline error message area. Submitting it emits a `validate` event with the entered values; Homey routes that to the active driver's pair-session handler in `drivers/<role>/driver.js`, which delegates to `lib/pairing.js`.
 
 The validation logic is role-aware:
 
