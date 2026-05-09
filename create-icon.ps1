@@ -4,11 +4,11 @@ Add-Type -AssemblyName System.Drawing
        $g = [System.Drawing.Graphics]::FromImage($bmp)
        $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
        $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAlias
-       $bgColor = [System.Drawing.Color]::FromArgb(11, 122, 184)
+       $bgColor = [System.Drawing.Color]::FromArgb(246, 64, 95)
        $brush = New-Object System.Drawing.SolidBrush $bgColor
        $g.FillRectangle($brush, 0, 0, $width, $height)
        $fontSize = [single]([Math]::Max(16, $height / 6))
-       $bgColor = [System.Drawing.Color]::FromArgb(11, 122, 184)
+       $bgColor = [System.Drawing.Color]::FromArgb(246, 64, 95)
        $brush = New-Object System.Drawing.SolidBrush $bgColor
        $g.FillRectangle($brush, 0, 0, $width, $height)
        $fontSize = [single]([Math]::Max(16, $height / 6))

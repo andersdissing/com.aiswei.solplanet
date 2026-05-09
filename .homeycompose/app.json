@@ -11,7 +11,7 @@
     "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time."
   },
   "category": ["energy"],
-  "brandColor": "#0B7AB8",
+  "brandColor": "#F6405F",
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
