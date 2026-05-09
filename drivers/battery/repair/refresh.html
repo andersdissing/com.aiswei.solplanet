@@ -5,72 +5,72 @@
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px; color: #222; }
     h2 { margin-top: 0; }
-    p  { font-size: 14px; line-height: 1.4; }
+    p  { font-size: 14px; line-height: 1.5; color: #444; }
+    .hint { color: #777; font-size: 12px; margin-top: 4px; }
     button { margin-top: 18px; padding: 10px 18px; background: #0B7AB8; color: white; border: 0; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; }
-    button:disabled { background: #999; cursor: not-allowed; }
-    .status { margin-top: 14px; min-height: 1.4em; font-size: 14px; color: #333; }
-    .status.ok    { color: #0a7e2f; }
-    .status.error { color: #c00; }
-    .hint { color: #666; font-size: 12px; }
-    pre.debug { margin-top: 18px; font-size: 11px; color: #555; background: #f4f4f4; padding: 8px; border-radius: 4px; max-height: 200px; overflow: auto; white-space: pre-wrap; }
+    button:disabled { background: #999; cursor: progress; }
+    .confirm { display: none; margin-top: 22px; padding: 14px 16px; border-radius: 6px; background: #e8f5ec; border: 1px solid #bce0c8; align-items: center; gap: 12px; }
+    .confirm.error { background: #fdecec; border-color: #f0bcbc; }
+    .confirm.visible { display: flex; }
+    .check { width: 28px; height: 28px; border-radius: 50%; background: #2c8b4a; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; flex: none; }
+    .confirm.error .check { background: #c0392b; }
+    .confirm-text { font-size: 14px; color: #1f5e34; }
+    .confirm.error .confirm-text { color: #7a201a; }
+    .confirm-sub  { display: block; font-size: 12px; color: #4d7a5d; margin-top: 2px; }
+    .confirm.error .confirm-sub { color: #8a3b34; }
   </style>
 </head>
 <body>
   <h2>Refresh device</h2>
-  <p>Reload capability labels, units, and titles from the latest app version.</p>
-  <p class="hint">Capability values reset briefly until the next polling tick (typically within a few seconds).</p>
+  <p>Reload capability labels, units and titles from the latest app version. Use this after the app updates to pick up renamed capabilities without removing and re-adding the device.</p>
+  <p class="hint">Capability values reset briefly until the next polling tick (within a few seconds).</p>
 
   <button id="refreshBtn">Refresh now</button>
-  <div id="status" class="status"></div>
-  <pre id="debug" class="debug"></pre>
+
+  <div id="confirm" class="confirm">
+    <div class="check" id="checkIcon">✓</div>
+    <div>
+      <span class="confirm-text" id="confirmText"></span>
+      <span class="confirm-sub" id="confirmSub">Close this dialog to return to the device.</span>
+    </div>
+  </div>
 
   <script type="application/javascript">
-    function dbg(msg) {
-      const el = document.getElementById('debug');
-      const t = new Date().toISOString().slice(11, 23);
-      el.textContent += '[' + t + '] ' + msg + '\n';
-    }
+    const btn = document.getElementById('refreshBtn');
+    const confirm = document.getElementById('confirm');
+    const checkIcon = document.getElementById('checkIcon');
+    const confirmText = document.getElementById('confirmText');
 
-    dbg('script loaded');
-    dbg('typeof Homey at script load: ' + (typeof Homey));
-
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-      dbg('button clicked');
-      dbg('typeof Homey at click: ' + (typeof Homey));
-      const status = document.getElementById('status');
-      const btn = document.getElementById('refreshBtn');
+    btn.addEventListener('click', async () => {
       btn.disabled = true;
-      status.className = 'status';
-      status.textContent = 'Refreshing…';
+      btn.textContent = 'Refreshing…';
       try {
-        dbg('calling Homey.emit("refresh")...');
         const result = await Homey.emit('refresh');
-        dbg('emit resolved: ' + JSON.stringify(result));
         if (result && result.ok) {
-          status.className = 'status ok';
-          status.textContent = 'Refreshed ' + result.count + ' capabilities. You can close this dialog.';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          confirmText.textContent = `Capabilities refreshed (${result.count}).`;
         } else if (result) {
-          status.className = 'status error';
-          status.textContent = 'Refreshed ' + result.count + ' capabilities, ' + ((result.failed || []).length) + ' failed.';
-        } else {
-          status.className = 'status error';
-          status.textContent = 'Refresh returned no result.';
+          btn.style.display = 'none';
+          confirm.classList.add('visible', 'error');
+          checkIcon.textContent = '!';
+          const failedCount = (result.failed || []).length;
+          confirmText.textContent = `Refreshed ${result.count}, ${failedCount} failed.`;
+          document.getElementById('confirmSub').textContent = 'Check the app log for details.';
         }
       } catch (err) {
-        dbg('emit threw: ' + (err && err.message ? err.message : String(err)));
-        status.className = 'status error';
-        status.textContent = (err && err.message) ? err.message : String(err);
-      } finally {
         btn.disabled = false;
+        btn.textContent = 'Refresh now';
+        confirm.classList.add('visible', 'error');
+        checkIcon.textContent = '!';
+        confirmText.textContent = (err && err.message) ? err.message : String(err);
+        document.getElementById('confirmSub').textContent = '';
       }
     });
 
-    dbg('click listener attached');
-
     function onHomeyReady(Homey) {
-      dbg('onHomeyReady called; typeof Homey arg: ' + (typeof Homey));
-      try { Homey.setTitle('Refresh device'); dbg('Homey.setTitle ok'); } catch (e) { dbg('setTitle threw: ' + e.message); }
-      try { Homey.ready(); dbg('Homey.ready called'); } catch (e) { dbg('Homey.ready threw: ' + e.message); }
+      Homey.setTitle('Refresh device');
+      Homey.ready();
     }
   </script>
 </body>
