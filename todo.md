@@ -44,7 +44,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] For the inverter driver, rename the `meter_power` capability title from "Energy" to "Energy, current load"
 - [x] Default name for the inverter appends "Inverter" postfix (e.g. `<model> Inverter`) to match the battery/meter naming
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
-- [x] Fix `unknown_error_getting_file` when triggering Repair — root cause: the view id `repair` was matching Homey's built-in template directory `/pair/templates/repair.html` (which doesn't exist), and adding `template: "repair"` made it worse for the same reason. Renamed the view id to `refresh` (non-reserved) and the file to `pair/refresh.html`; dropped the `template` field. The Homey iframe now resolves to the driver-local file at `/drivers/<id>/pair/refresh.html`.
+- [x] Fix `unknown_error_getting_file` when triggering Repair — actual root cause confirmed by the iframe URL: Homey looks up repair views at `drivers/<id>/repair/<view>.html`, NOT `drivers/<id>/pair/<view>.html` (pair and repair use parallel sibling folders). Moved each driver's `pair/refresh.html` to `repair/refresh.html`. (The earlier `id: "repair"` collision and `template` field misuse were red herrings, but renaming to `refresh` is fine to keep.)
 - [x] Revert the inverter `meter_power` title back to "Energy" — removed the `capabilitiesOptions.meter_power` override (Homey's default title is "Energy")
 
 ## Phase 5 — Pairing
