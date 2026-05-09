@@ -151,6 +151,104 @@
       ]
     },
     {
+      "id": "home",
+      "name": {
+        "en": "Solplanet Home Consumption"
+      },
+      "class": "sensor",
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "capabilities": [
+        "measure_power",
+        "meter_power"
+      ],
+      "capabilitiesOptions": {
+        "measure_power": {
+          "title": {
+            "en": "Home consumption"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Home energy total"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/meter/assets/images/small.png",
+        "large": "/drivers/meter/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "refresh"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection"
+          },
+          "children": [
+            {
+              "id": "ip_address",
+              "type": "text",
+              "label": {
+                "en": "IP address"
+              },
+              "value": ""
+            },
+            {
+              "id": "serial_number",
+              "type": "text",
+              "label": {
+                "en": "Serial number"
+              },
+              "value": ""
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Polling"
+          },
+          "children": [
+            {
+              "id": "poll_interval_seconds",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)"
+              },
+              "min": 5,
+              "max": 300,
+              "value": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "inverter",
       "name": {
         "en": "Solplanet Inverter"
@@ -259,7 +357,6 @@
       ],
       "capabilities": [
         "measure_power",
-        "measure_power.home",
         "meter_power.imported",
         "meter_power.exported",
         "meter_power.imported_today",
@@ -269,11 +366,6 @@
         "measure_power": {
           "title": {
             "en": "Grid power"
-          }
-        },
-        "measure_power.home": {
-          "title": {
-            "en": "Home consumption"
           }
         },
         "meter_power.imported": {

@@ -1,29 +1,18 @@
 {
-  "id": "meter",
+  "id": "home",
   "name": {
-    "en": "Solplanet Grid Meter"
+    "en": "Solplanet Home Consumption"
   },
   "class": "sensor",
   "platforms": ["local"],
   "connectivity": ["lan"],
   "capabilities": [
     "measure_power",
-    "meter_power.imported",
-    "meter_power.exported",
-    "meter_power.imported_today",
-    "meter_power.exported_today"
+    "meter_power"
   ],
   "capabilitiesOptions": {
-    "measure_power": { "title": { "en": "Grid power" } },
-    "meter_power.imported": { "title": { "en": "Imported" } },
-    "meter_power.exported": { "title": { "en": "Exported" } },
-    "meter_power.imported_today": { "title": { "en": "Imported today" } },
-    "meter_power.exported_today": { "title": { "en": "Exported today" } }
-  },
-  "energy": {
-    "cumulative": true,
-    "cumulativeImportedCapability": "meter_power.imported",
-    "cumulativeExportedCapability": "meter_power.exported"
+    "measure_power": { "title": { "en": "Home consumption" } },
+    "meter_power":   { "title": { "en": "Home energy total" } }
   },
   "images": {
     "small": "/drivers/meter/assets/images/small.png",
@@ -71,19 +60,6 @@
           "min": 5,
           "max": 300,
           "value": 60
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "label": { "en": "Energy total" },
-      "children": [
-        {
-          "id": "exclude_grid_exports",
-          "type": "checkbox",
-          "label": { "en": "Exclude grid exports from Energy total" },
-          "hint": { "en": "When enabled, electricity sold back to the grid is not written to the exported counters and so is excluded from Homey's Electricity Total. Toggling this on freezes the exported counter at its last value; toggling off resumes writing the live meter reading." },
-          "value": false
         }
       ]
     }
