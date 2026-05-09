@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px; color: #222; }
+    h2 { margin-top: 0; }
+    p  { font-size: 14px; line-height: 1.4; }
+    button { margin-top: 18px; padding: 10px 18px; background: #0B7AB8; color: white; border: 0; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; }
+    button:disabled { background: #999; cursor: not-allowed; }
+    .status { margin-top: 14px; min-height: 1.4em; font-size: 14px; color: #333; }
+    .status.ok    { color: #0a7e2f; }
+    .status.error { color: #c00; }
+    .hint { color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h2>Refresh device</h2>
+  <p>Reload capability labels, units, and titles from the latest app version.
+  Use this after the app updates to pick up renamed or relabelled capabilities
+  without removing and re-adding the device.</p>
+  <p class="hint">Capability values reset briefly until the next polling tick (typically within a few seconds).</p>
+
+  <button id="refreshBtn">Refresh now</button>
+  <div id="status" class="status"></div>
+
+  <script>
+    const btn = document.getElementById('refreshBtn');
+    const status = document.getElementById('status');
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Refreshing…';
+      try {
+        const result = await Homey.emit('refresh');
+        if (result && result.ok) {
+          status.className = 'status ok';
+          status.textContent = `Refreshed ${result.count} capabilities. You can close this dialog.`;
+        } else if (result) {
+          status.className = 'status error';
+          const failedCount = (result.failed || []).length;
+          status.textContent = `Refreshed ${result.count} capabilities, ${failedCount} failed. Check the app log.`;
+        } else {
+          status.className = 'status error';
+          status.textContent = 'Refresh returned no result.';
+        }
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = (err && err.message) ? err.message : String(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
