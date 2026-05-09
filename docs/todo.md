@@ -113,10 +113,10 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Find a better small / large image for **driver `meter`**.
 - [ ] Find a better small / large image for **driver `home`**.
 - [x] App Store metadata sweep (description, tags, category) — Danish (`da`) translations added for `description` and `tags`; `category: ["energy"]` confirmed correct; `name` left as the brand "Solplanet" (no translation needed). Manifest validates clean at verified level.
-- [ ] Optional: localised `readme.<lang>.txt` (e.g. Danish) for the App Store listing — `readme.txt` is English-only.
+- [x] Optional: localised `readme.<lang>.txt` — declined per user decision; English-only is sufficient.
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
-- [ ] Custom flow cards (deferred from v1.0)
+- [x] Custom flow cards — declined per user decision (twice). Built-in Homey energy flows cover the use cases.
 - [ ] Evaluate TypeScript migration
 
 ---
