@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Homey build output
+.homeybuild/
+
+# Data miner output (raw inverter snapshots)
+debug/
+
+# Local secrets — inverter IP/serial for the data miner
+.env
+.env.local
+.env.*.local
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.log
+
+# npm
+npm-debug.log*
