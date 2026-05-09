@@ -23,6 +23,85 @@ function findLatestSnapshot() {
   return files.length ? path.join(DEBUG_DIR, files[files.length - 1]) : null;
 }
 
+function fmt(n, suffix = '') {
+  if (n === null || n === undefined) return '—';
+  return `${n}${suffix}`;
+}
+
+function fmtSigned(n, suffix, posLabel, negLabel) {
+  if (n === null || n === undefined) return '—';
+  const sign = n > 0 ? `+${n}` : `${n}`;
+  const label = n > 0 ? posLabel : n < 0 ? negLabel : '';
+  return `${sign}${suffix}${label ? ` (${label})` : ''}`;
+}
+
+// Build the Energy-tab summary — one line per tile, ending with the derived
+// Home consumption. This is the value the user can't read from any single
+// capability and is the cheapest sanity check that all signs/scales line up.
+function buildTileSummary(snapshot) {
+  const inv = snapshot.inverter && snapshot.inverter.parsed;
+  const bat = snapshot.battery && snapshot.battery.parsed;
+  const m = snapshot.meter && snapshot.meter.parsed;
+
+  // PV-side: prefer hybrid battery slice's ppv (which excludes battery flow);
+  // fall back to inverter pac on pure-PV systems.
+  const pvPower = bat && bat.pvPower_W !== null ? bat.pvPower_W
+    : inv ? inv.instantPower_W : null;
+  const pvTotal = bat && bat.pvEnergyTotalKWh !== null ? bat.pvEnergyTotalKWh
+    : inv ? inv.energyTotalKWh : null;
+  const pvToday = bat && bat.pvEnergyTodayKWh !== null ? bat.pvEnergyTodayKWh
+    : inv ? inv.energyTodayKWh : null;
+
+  const lines = [];
+  lines.push('Energy tab — values your Homey app should show right now:');
+  lines.push('-'.repeat(72));
+
+  lines.push(`  Solar    : ${fmt(pvPower, ' W')}   (lifetime ${fmt(pvTotal, ' kWh')}, today ${fmt(pvToday, ' kWh')})`);
+
+  if (bat) {
+    lines.push(`  Battery  : ${fmt(bat.soc_pct, '%')}   power ${fmtSigned(bat.batteryPower_W, ' W', 'charging', 'discharging')}   (lifetime ↓${fmt(bat.chargedTotalKWh)} / ↑${fmt(bat.dischargedTotalKWh)} kWh)`);
+  } else {
+    lines.push('  Battery  : — (no battery data in this snapshot)');
+  }
+
+  if (m) {
+    lines.push(`  Grid     : ${fmtSigned(m.gridPower_W, ' W', 'importing', 'exporting')}   (lifetime ↓${fmt(m.importedTotalKWh)} / ↑${fmt(m.exportedTotalKWh)} kWh)`);
+  } else {
+    lines.push('  Grid     : — (no meter data in this snapshot)');
+  }
+
+  // Home consumption (W) = PV + grid_signed − battery_signed
+  //   grid_signed: + when importing, − when exporting
+  //   battery_signed: + when charging, − when discharging
+  // Energy balance at the house: PV in + grid in = home consumed + battery charged.
+  // Solving for home: home = PV + grid − battery (using signed values).
+  const haveAll = typeof pvPower === 'number'
+    && m && typeof m.gridPower_W === 'number'
+    && bat && typeof bat.batteryPower_W === 'number';
+  const havePvAndGrid = typeof pvPower === 'number'
+    && m && typeof m.gridPower_W === 'number';
+
+  let homeLine;
+  if (haveAll) {
+    const home = pvPower + m.gridPower_W - bat.batteryPower_W;
+    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')} − battery ${fmtSigned(bat.batteryPower_W, '', '', '')})`;
+  } else if (havePvAndGrid) {
+    const home = pvPower + m.gridPower_W;
+    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')}; no battery in derivation)`;
+  } else {
+    homeLine = '  Home     : — (need at least PV + grid for derivation)';
+  }
+  lines.push(homeLine);
+
+  lines.push('');
+  lines.push('If a tile in the Homey app shows a different number, the bug is most');
+  lines.push('likely a sign or scale-factor mismatch in the corresponding device.js');
+  lines.push('or in lib/fields.js. Battery sign: see BATTERY_POWER_SIGN in');
+  lines.push('drivers/battery/device.js — flip from +1 to -1 if charge/discharge');
+  lines.push('reports the wrong sign on the Battery tile.');
+  return lines.join('\n');
+}
+
 function buildReport(snapshot) {
   if (!snapshot) {
     return 'No debug snapshot found. Run `npm run mine` first.';
@@ -31,6 +110,11 @@ function buildReport(snapshot) {
   const lines = [];
   lines.push(`Snapshot: ${snapshot.ts}  (tsMs ${snapshot.tsMs})`);
   lines.push('='.repeat(72));
+  lines.push('');
+  lines.push(buildTileSummary(snapshot));
+  lines.push('');
+  lines.push('='.repeat(72));
+  lines.push('Per-capability detail (for debugging individual mismatches):');
 
   function section(role, slice, mapping) {
     if (!slice || !slice.parsed) {
@@ -68,14 +152,6 @@ function buildReport(snapshot) {
     ['meter_power.exported_today',       'exportedTodayKWh'],
   ]);
 
-  lines.push('\n' + '-'.repeat(72));
-  lines.push('Cross-check: each value above should match what the corresponding');
-  lines.push('Homey device shows in the app. The Energy tab tiles aggregate from');
-  lines.push('these capabilities (Solar / Battery / Grid; Home is the residual).');
-  lines.push('');
-  lines.push('Battery sign convention: Homey wants + charging, − discharging.');
-  lines.push('If the values above show the opposite sign for actual charging/');
-  lines.push('discharging events, flip BATTERY_POWER_SIGN in drivers/battery/device.js.');
   return lines.join('\n');
 }
 
