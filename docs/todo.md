@@ -103,8 +103,10 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Redraw **driver tile icons** (`drivers/<id>/assets/images/{small,large}.png`) — single sun motif consistent across all four drivers; differentiation between drivers is via name + capabilities, not the icon. Sizes 75×75 / 500×500 px PNGs with white background per Homey guidelines. Replace the flat-coloured `create-icon.ps1` placeholders.
 - [ ] App name finalization — currently "Solplanet" in `.homeycompose/app.json`. Verify before App Store submission.
 - [x] Create Homey Community support thread — live at https://community.homey.app/t/solplanet-app/154698/.
-- [ ] Set `homeyCommunityTopicId` in manifest to `154698` (URL: https://community.homey.app/t/solplanet-app/154698/).
-- [ ] Update Tags, Permissions, Environment in `.homeycompose/app.json` — review and complete the manifest fields needed for store submission.
+- [x] Set `homeyCommunityTopicId` in manifest to `154698` — done.
+- [x] Update **Tags** in `.homeycompose/app.json` — added a 14-entry English tag list (solar, PV, inverter, hybrid inverter, battery, home battery, grid, grid meter, energy, energy monitoring, home consumption, Solplanet, AISWEI, solar panels). Add Danish (`da`) translations during App Store polish.
+- [x] **Permissions** in `.homeycompose/app.json` — verified empty (`[]`) is correct: the app makes HTTP calls to the inverter on the LAN, which Homey allows by default; no special API permissions needed.
+- [ ] **Environment** in `.homeycompose/app.json` — `environment` isn't a standard Homey manifest field. If this referred to the per-driver `platforms` / `connectivity` blocks they're already set (`local` / `lan`). Clarify what was intended.
 - [ ] Find a better small / large image for the **app** — something with a grassy field and solar panels (reference: https://www.istockphoto.com/photo/solar-panels-in-a-field-of-grass-gm184370293-17486314 — but use a watermark-free / properly-licensed source).
 - [ ] Find a better small / large image for **driver `inverter`**.
 - [ ] Find a better small / large image for **driver `battery`**.

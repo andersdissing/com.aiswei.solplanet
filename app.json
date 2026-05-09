@@ -17,6 +17,25 @@
     "energy"
   ],
   "brandColor": "#F6405F",
+  "tags": {
+    "en": [
+      "solar",
+      "solar panels",
+      "PV",
+      "inverter",
+      "hybrid inverter",
+      "battery",
+      "home battery",
+      "grid",
+      "grid meter",
+      "energy",
+      "energy monitoring",
+      "home consumption",
+      "Solplanet",
+      "AISWEI"
+    ]
+  },
+  "homeyCommunityTopicId": 154698,
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
