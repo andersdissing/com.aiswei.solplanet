@@ -24,34 +24,40 @@
   <button id="refreshBtn">Refresh now</button>
   <div id="status" class="status"></div>
 
-  <script>
-    const btn = document.getElementById('refreshBtn');
-    const status = document.getElementById('status');
+  <script type="application/javascript">
+    function onHomeyReady(Homey) {
+      Homey.setTitle('Refresh device');
 
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      status.className = 'status';
-      status.textContent = 'Refreshing…';
-      try {
-        const result = await Homey.emit('refresh');
-        if (result && result.ok) {
-          status.className = 'status ok';
-          status.textContent = `Refreshed ${result.count} capabilities. You can close this dialog.`;
-        } else if (result) {
+      const btn = document.getElementById('refreshBtn');
+      const status = document.getElementById('status');
+
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        status.className = 'status';
+        status.textContent = 'Refreshing…';
+        try {
+          const result = await Homey.emit('refresh');
+          if (result && result.ok) {
+            status.className = 'status ok';
+            status.textContent = `Refreshed ${result.count} capabilities. You can close this dialog.`;
+          } else if (result) {
+            status.className = 'status error';
+            const failedCount = (result.failed || []).length;
+            status.textContent = `Refreshed ${result.count} capabilities, ${failedCount} failed. Check the app log.`;
+          } else {
+            status.className = 'status error';
+            status.textContent = 'Refresh returned no result.';
+          }
+        } catch (err) {
           status.className = 'status error';
-          const failedCount = (result.failed || []).length;
-          status.textContent = `Refreshed ${result.count} capabilities, ${failedCount} failed. Check the app log.`;
-        } else {
-          status.className = 'status error';
-          status.textContent = 'Refresh returned no result.';
+          status.textContent = (err && err.message) ? err.message : String(err);
+        } finally {
+          btn.disabled = false;
         }
-      } catch (err) {
-        status.className = 'status error';
-        status.textContent = (err && err.message) ? err.message : String(err);
-      } finally {
-        btn.disabled = false;
-      }
-    });
+      });
+
+      Homey.ready();
+    }
   </script>
 </body>
 </html>

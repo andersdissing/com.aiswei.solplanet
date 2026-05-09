@@ -44,6 +44,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] For the inverter driver, rename the `meter_power` capability title from "Energy" to "Energy, current load"
 - [x] Default name for the inverter appends "Inverter" postfix (e.g. `<model> Inverter`) to match the battery/meter naming
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
+- [x] Fix `unknown_error_getting_file` when triggering Repair — repair view rewritten to wrap script in `onHomeyReady(Homey)` and call `Homey.ready()` so the Homey iframe signals load complete
 
 ## Phase 5 — Pairing
 
