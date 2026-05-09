@@ -12,51 +12,65 @@
     .status.ok    { color: #0a7e2f; }
     .status.error { color: #c00; }
     .hint { color: #666; font-size: 12px; }
+    pre.debug { margin-top: 18px; font-size: 11px; color: #555; background: #f4f4f4; padding: 8px; border-radius: 4px; max-height: 200px; overflow: auto; white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <h2>Refresh device</h2>
-  <p>Reload capability labels, units, and titles from the latest app version.
-  Use this after the app updates to pick up renamed or relabelled capabilities
-  without removing and re-adding the device.</p>
+  <p>Reload capability labels, units, and titles from the latest app version.</p>
   <p class="hint">Capability values reset briefly until the next polling tick (typically within a few seconds).</p>
 
   <button id="refreshBtn">Refresh now</button>
   <div id="status" class="status"></div>
+  <pre id="debug" class="debug"></pre>
 
   <script type="application/javascript">
-    function onHomeyReady(Homey) {
-      Homey.setTitle('Refresh device');
+    function dbg(msg) {
+      const el = document.getElementById('debug');
+      const t = new Date().toISOString().slice(11, 23);
+      el.textContent += '[' + t + '] ' + msg + '\n';
+    }
 
-      const btn = document.getElementById('refreshBtn');
+    dbg('script loaded');
+    dbg('typeof Homey at script load: ' + (typeof Homey));
+
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+      dbg('button clicked');
+      dbg('typeof Homey at click: ' + (typeof Homey));
       const status = document.getElementById('status');
-
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        status.className = 'status';
-        status.textContent = 'Refreshing…';
-        try {
-          const result = await Homey.emit('refresh');
-          if (result && result.ok) {
-            status.className = 'status ok';
-            status.textContent = `Refreshed ${result.count} capabilities. You can close this dialog.`;
-          } else if (result) {
-            status.className = 'status error';
-            const failedCount = (result.failed || []).length;
-            status.textContent = `Refreshed ${result.count} capabilities, ${failedCount} failed. Check the app log.`;
-          } else {
-            status.className = 'status error';
-            status.textContent = 'Refresh returned no result.';
-          }
-        } catch (err) {
+      const btn = document.getElementById('refreshBtn');
+      btn.disabled = true;
+      status.className = 'status';
+      status.textContent = 'Refreshing…';
+      try {
+        dbg('calling Homey.emit("refresh")...');
+        const result = await Homey.emit('refresh');
+        dbg('emit resolved: ' + JSON.stringify(result));
+        if (result && result.ok) {
+          status.className = 'status ok';
+          status.textContent = 'Refreshed ' + result.count + ' capabilities. You can close this dialog.';
+        } else if (result) {
           status.className = 'status error';
-          status.textContent = (err && err.message) ? err.message : String(err);
-        } finally {
-          btn.disabled = false;
+          status.textContent = 'Refreshed ' + result.count + ' capabilities, ' + ((result.failed || []).length) + ' failed.';
+        } else {
+          status.className = 'status error';
+          status.textContent = 'Refresh returned no result.';
         }
-      });
+      } catch (err) {
+        dbg('emit threw: ' + (err && err.message ? err.message : String(err)));
+        status.className = 'status error';
+        status.textContent = (err && err.message) ? err.message : String(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
 
-      Homey.ready();
+    dbg('click listener attached');
+
+    function onHomeyReady(Homey) {
+      dbg('onHomeyReady called; typeof Homey arg: ' + (typeof Homey));
+      try { Homey.setTitle('Refresh device'); dbg('Homey.setTitle ok'); } catch (e) { dbg('setTitle threw: ' + e.message); }
+      try { Homey.ready(); dbg('Homey.ready called'); } catch (e) { dbg('Homey.ready threw: ' + e.message); }
     }
   </script>
 </body>
