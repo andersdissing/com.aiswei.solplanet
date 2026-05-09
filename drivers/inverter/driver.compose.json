@@ -1,0 +1,65 @@
+{
+  "id": "inverter",
+  "name": {
+    "en": "Solplanet Inverter"
+  },
+  "class": "solarpanel",
+  "capabilities": [
+    "measure_power",
+    "meter_power",
+    "meter_power.today",
+    "measure_temperature"
+  ],
+  "capabilitiesOptions": {
+    "meter_power.today": {
+      "title": { "en": "Energy today" }
+    }
+  },
+  "images": {
+    "small": "/drivers/inverter/assets/images/small.png",
+    "large": "/drivers/inverter/assets/images/large.png"
+  },
+  "pair": [
+    { "id": "start" },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    { "id": "add_devices", "template": "add_devices" }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": { "en": "Connection" },
+      "children": [
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": { "en": "IP address" },
+          "value": ""
+        },
+        {
+          "id": "serial_number",
+          "type": "text",
+          "label": { "en": "Serial number" },
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": { "en": "Polling" },
+      "children": [
+        {
+          "id": "poll_interval_seconds",
+          "type": "number",
+          "label": { "en": "Poll interval (seconds)" },
+          "min": 5,
+          "max": 300,
+          "value": 60
+        }
+      ]
+    }
+  ]
+}

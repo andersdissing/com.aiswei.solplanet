@@ -1,0 +1,73 @@
+{
+  "id": "battery",
+  "name": {
+    "en": "Solplanet Battery"
+  },
+  "class": "battery",
+  "capabilities": [
+    "measure_battery",
+    "measure_power",
+    "meter_power.charged",
+    "meter_power.discharged",
+    "meter_power.charged_today",
+    "meter_power.discharged_today"
+  ],
+  "capabilitiesOptions": {
+    "meter_power.charged": { "title": { "en": "Energy charged" } },
+    "meter_power.discharged": { "title": { "en": "Energy discharged" } },
+    "meter_power.charged_today": { "title": { "en": "Charged today" } },
+    "meter_power.discharged_today": { "title": { "en": "Discharged today" } }
+  },
+  "energy": {
+    "homeBattery": true,
+    "meterPowerImportedCapability": "meter_power.charged",
+    "meterPowerExportedCapability": "meter_power.discharged"
+  },
+  "images": {
+    "small": "/drivers/battery/assets/images/small.png",
+    "large": "/drivers/battery/assets/images/large.png"
+  },
+  "pair": [
+    { "id": "start" },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    { "id": "add_devices", "template": "add_devices" }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": { "en": "Connection" },
+      "children": [
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": { "en": "IP address" },
+          "value": ""
+        },
+        {
+          "id": "serial_number",
+          "type": "text",
+          "label": { "en": "Serial number" },
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": { "en": "Polling" },
+      "children": [
+        {
+          "id": "poll_interval_seconds",
+          "type": "number",
+          "label": { "en": "Poll interval (seconds)" },
+          "min": 5,
+          "max": 300,
+          "value": 60
+        }
+      ]
+    }
+  ]
+}

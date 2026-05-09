@@ -33,10 +33,11 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 4 — Drivers
 
-- [ ] `drivers/inverter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `solarpanel`, no energy block
-- [ ] `drivers/battery/{driver.compose.json, driver.js, device.js, assets/images/}` — class `battery`, `energy.homeBattery: true`, `meterPowerImported|ExportedCapability` mapped to `meter_power.charged`/`discharged`
-- [ ] `drivers/meter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `sensor`, `energy.cumulative: true`, `cumulativeImported|ExportedCapability` mapped to `meter_power.imported`/`exported`
-- [ ] `locales/en.json` and `locales/da.json` — capability titles + pairing strings
+- [x] `drivers/inverter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `solarpanel`, no energy block; prefers battery-side ppv on hybrid systems, falls back to inverter pac
+- [x] `drivers/battery/{driver.compose.json, driver.js, device.js, assets/images/}` — class `battery`, `energy.homeBattery: true`, `meterPowerImported|ExportedCapability` mapped to `meter_power.charged`/`discharged`; sign constant `BATTERY_POWER_SIGN` to flip after Phase 7 if needed
+- [x] `drivers/meter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `sensor`, `energy.cumulative: true`, `cumulativeImported|ExportedCapability` mapped to `meter_power.imported`/`exported`
+- [x] `locales/en.json` and `locales/da.json` — empty stubs in v1 (capability titles inlined in driver.compose.json; expand for runtime strings if needed)
+- [x] `create-icon.ps1` extended to generate driver tile images (75×75 / 500×500)
 
 ## Phase 5 — Pairing
 
