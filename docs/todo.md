@@ -89,7 +89,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] Add `HOMEY_PAT` secret to GitHub repo — set via `gh secret set HOMEY_PAT` piped from the local `.env`; the publish workflow can now run.
 - [x] Create GitHub repo `andersdissing/com.aiswei.solplanet` and `git push -u origin main` — done; merged origin/main (initial LICENSE commit) into local main and pushed.
 - [x] Add notes about the difference between "Home consumption" and Grid Power. Include clarification on how Grid Power is calculated and add references to Homey's own documentation to the readme (Github) and readme for Homey app — new "Reading the values" section in `README.md` and a corresponding paragraph in `readme.txt`.
-- [ ] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
+- [x] Tag `v1.0.0` — annotated tag pushed: https://github.com/andersdissing/com.aiswei.solplanet/releases/tag/v1.0.0
 
 ## Phase 9 — v1.1 / Phase 2: Publishing readiness
 
@@ -99,7 +99,7 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Store-quality screenshots and assets (small / large / xlarge images, driver-tile images)
 - [x] Polished user-facing `readme.txt` — rewritten for App Store: benefit-led intro, "What you'll see" / "What you need" / "Adding your inverter" sections, four-driver list, Grid-power-vs-Home-consumption note, community + issues links. Validates clean.
 - [x] Brand color — Radical Red `#F6405F` (manifest, pair/repair UI, `create-icon.ps1` placeholder colour). Done in Phase 4 commit `bc1e55f`.
-- [ ] Redraw **app icon** (`assets/icon.svg`) — sun theme, transparent background, use full canvas, no text, readable against the Radical Red brandColor. Use `Icon-template.png` (project root) as visual reference. Follow Homey's [app-store guidelines](https://apps.developer.homey.app/app-store/guidelines.md). Replace the placeholder shipped during scaffolding.
+- [x] Redraw **app icon** (`assets/icon.svg`) — rounded-diamond mark inspired by `Icon-template.png`: four black wedges with a thin white "+" cross and a small diamond accent at center, full canvas, transparent background, no text. Reads cleanly against the Radical Red brandColor.
 - [ ] Redraw **driver tile icons** (`drivers/<id>/assets/images/{small,large}.png`) — single sun motif consistent across all four drivers; differentiation between drivers is via name + capabilities, not the icon. Sizes 75×75 / 500×500 px PNGs with white background per Homey guidelines. Replace the flat-coloured `create-icon.ps1` placeholders.
 - [x] App name finalization — confirmed as **"Solplanet"** in `.homeycompose/app.json`.
 - [x] Create Homey Community support thread — live at https://community.homey.app/t/solplanet-app/154698/.
