@@ -1,12 +1,7 @@
 'use strict';
 
 const InverterDevice = require('../../lib/InverterDevice');
-
-// Sign convention: Homey wants measure_power POSITIVE when CHARGING and
-// NEGATIVE when DISCHARGING. The Solplanet `pb` field reports the opposite
-// (positive when discharging) on the firmware confirmed during on-hardware
-// validation, so we flip with -1.
-const BATTERY_POWER_SIGN = -1;
+const { homeyBatteryPower_W } = require('../../lib/conventions');
 
 class BatteryDeviceImpl extends InverterDevice {
 
@@ -23,10 +18,7 @@ class BatteryDeviceImpl extends InverterDevice {
 
     await this.setCapabilityWithCatch('measure_battery', bat.soc_pct);
 
-    const power = typeof bat.batteryPower_W === 'number'
-      ? BATTERY_POWER_SIGN * bat.batteryPower_W
-      : null;
-    await this.setCapabilityWithCatch('measure_power', power);
+    await this.setCapabilityWithCatch('measure_power', homeyBatteryPower_W(bat.batteryPower_W));
 
     await this.setMonotonicCapability('meter_power.charged', bat.chargedTotalKWh);
     await this.setMonotonicCapability('meter_power.discharged', bat.dischargedTotalKWh);

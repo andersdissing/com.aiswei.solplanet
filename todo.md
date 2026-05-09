@@ -46,7 +46,8 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
 - [x] Fix `unknown_error_getting_file` when triggering Repair — actual root cause confirmed by the iframe URL: Homey looks up repair views at `drivers/<id>/repair/<view>.html`, NOT `drivers/<id>/pair/<view>.html` (pair and repair use parallel sibling folders). Moved each driver's `pair/refresh.html` to `repair/refresh.html`. (The earlier `id: "repair"` collision and `template` field misuse were red herrings, but renaming to `refresh` is fine to keep.)
 - [x] Revert the inverter `meter_power` title back to "Energy" — removed the `capabilitiesOptions.meter_power` override (Homey's default title is "Energy")
-- [ ] Expose **Home consumption** as a device capability — currently only on the Energy tab's Home tile. Add `measure_power.home` (title: "Home consumption") to the meter device; meter `device.js` computes `pv + grid_signed − battery_signed` from the snapshot each tick and writes it. Naming alternatives if "Home consumption" feels off: "House consumption", "Live consumption", "Real-time consumption".
+- [x] Expose **Home consumption** as a device capability — `measure_power.home` (title: "Home consumption") added to the meter driver. The meter's `device.js` computes `pv + grid_signed − battery_signed` each tick and writes it. Battery sign convention factored into `lib/conventions.js` so battery and meter devices share one source of truth.
+- [x] Rename the meter's existing `measure_power` title from default "Power" to "Grid power" so the device tile distinguishes Grid power from the new Home consumption.
 
 ## Phase 5 — Pairing
 
