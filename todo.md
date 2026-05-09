@@ -31,7 +31,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 - [x] `lib/InverterDevice.js` shared base class (settings init, coordinator subscribe in `onInit`, re-subscribe on `onSettings`, unsubscribe in `onDeleted`/`onUninit`, `setCapabilityWithCatch`, `setMonotonicCapability`, `isMidnightWindow` helper)
 - [x] `lib/pairing.js` — shared pairing helper (`createPairingHandlers(role)` returning `{ validate, listDevices }`); battery / meter roles probe their subsystem and return a friendly error if absent
-- [!] Decide battery `measure_power` sign convention via data-miner empirical check (Phase 7 prerequisite) — blocked: requires real-hardware data run
+- [x] Decide battery `measure_power` sign convention — confirmed on hardware: Solplanet `pb` is positive when discharging, so `BATTERY_POWER_SIGN = -1`
 
 ## Phase 4 — Drivers
 
@@ -46,7 +46,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `pair/start.html` shared form (IP + serial; device-nr override deferred — hardcoded 2/3/4 in `SolplanetApi`)
 - [x] Wire each driver's `onPair` to `lib/pairing.js` filtered by role
 - [x] `battery` / `meter` pairing returns friendly error if subsystem absent
-- [!] Manual smoke test: pair inverter → battery → meter on a real system — blocked: requires real hardware (user task)
+- [ ] Manual smoke test: pair inverter → battery → meter on a real system — blocked: requires real hardware (user task)
 
 ## Phase 6 — Energy validation
 
@@ -55,8 +55,9 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [!] **Battery** tile shows SoC + signed `measure_power` (charging positive, discharging negative) — blocked: real hardware
 - [!] **Grid** tile shows imported/exported cumulative meter values — blocked: real hardware
 - [!] **Home** tile populates (residual) — bug-fix-vs-reference indicator — blocked: real hardware
-- [!] Verify battery `measure_power` sign matches Homey convention; bake flip constant if inverted — blocked: real hardware (see Phase 7)
+- [x] Verify battery `measure_power` sign matches Homey convention — flipped `BATTERY_POWER_SIGN` to `-1` after observing Solplanet reports `pb` positive when discharging
 - [ ] Future: factor pair/start.html into a single source via prebuild script (currently 3 identical copies, one per driver)
+- [ ] Add a configuration option to exclude saling electricty are tracked under the "Electricity Total" Energy-tab
 
 ## Phase 7 — Data miner
 

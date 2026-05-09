@@ -3,10 +3,10 @@
 const InverterDevice = require('../../lib/InverterDevice');
 
 // Sign convention: Homey wants measure_power POSITIVE when CHARGING and
-// NEGATIVE when DISCHARGING. The Solplanet `pb` field is firmware-dependent;
-// flip this constant to -1 if Phase 7 data-mining shows the inverter reports
-// the opposite sign.
-const BATTERY_POWER_SIGN = 1;
+// NEGATIVE when DISCHARGING. The Solplanet `pb` field reports the opposite
+// (positive when discharging) on the firmware confirmed during on-hardware
+// validation, so we flip with -1.
+const BATTERY_POWER_SIGN = -1;
 
 class BatteryDeviceImpl extends InverterDevice {
 
