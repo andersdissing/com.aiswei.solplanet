@@ -102,7 +102,14 @@ Goal: ready for publication on the Homey App Store.
 - [ ] Redraw **app icon** (`assets/icon.svg`) — sun theme, transparent background, use full canvas, no text, readable against the Radical Red brandColor. Use `Icon-template.png` (project root) as visual reference. Follow Homey's [app-store guidelines](https://apps.developer.homey.app/app-store/guidelines.md). Replace the placeholder shipped during scaffolding.
 - [ ] Redraw **driver tile icons** (`drivers/<id>/assets/images/{small,large}.png`) — single sun motif consistent across all four drivers; differentiation between drivers is via name + capabilities, not the icon. Sizes 75×75 / 500×500 px PNGs with white background per Homey guidelines. Replace the flat-coloured `create-icon.ps1` placeholders.
 - [ ] App name finalization — currently "Solplanet" in `.homeycompose/app.json`. Verify before App Store submission.
-- [ ] Create Homey Community support thread; set `homeyCommunityTopicId` in manifest
+- [x] Create Homey Community support thread — live at https://community.homey.app/t/solplanet-app/154698/.
+- [ ] Set `homeyCommunityTopicId` in manifest to `154698` (URL: https://community.homey.app/t/solplanet-app/154698/).
+- [ ] Update Tags, Permissions, Environment in `.homeycompose/app.json` — review and complete the manifest fields needed for store submission.
+- [ ] Find a better small / large image for the **app** — something with a grassy field and solar panels (reference: https://www.istockphoto.com/photo/solar-panels-in-a-field-of-grass-gm184370293-17486314 — but use a watermark-free / properly-licensed source).
+- [ ] Find a better small / large image for **driver `inverter`**.
+- [ ] Find a better small / large image for **driver `battery`**.
+- [ ] Find a better small / large image for **driver `meter`**.
+- [ ] Find a better small / large image for **driver `home`**.
 - [ ] App Store metadata (description, tags, category)
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
@@ -116,4 +123,4 @@ Goal: ready for publication on the Homey App Store.
 - [x] Author / email for manifest — set as `Anders Dissing <ameq@ameq.dk>` in `.homeycompose/app.json`.
 - [x] Brand color — confirmed as **Radical Red `#F6405F`** (RGB 246/64/95). Manifest `brandColor`, all pair/repair view buttons, and `create-icon.ps1` placeholder color updated. Existing icon PNGs left unchanged per the "do not change the icon" instruction; running `create-icon.ps1` later will regenerate them in Radical Red. See `project.md` for full spec.
 - [x] GitHub repo `andersdissing/com.aiswei.solplanet` — exists and `main` is pushed.
-- [ ] Homey Community Topic id — leave unset in v1.0; create when submitting v1.1
+- [x] Homey Community Topic id — thread created (https://community.homey.app/t/solplanet-app/154698/); manifest update tracked as a Phase 9 task.
