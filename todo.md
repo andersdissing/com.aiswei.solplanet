@@ -65,7 +65,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] **Grid** tile shows imported/exported cumulative meter values — verified on hardware
 - [x] **Home** tile populates (residual) — verified: derived `PV + grid − battery` matches Solplanet mobile app's "Load" reading within sampling jitter (~60 W of 6 kW = <1 %)
 - [x] Verify battery `measure_power` sign matches Homey convention — flipped `BATTERY_POWER_SIGN` to `-1` after observing Solplanet reports `pb` positive when discharging
-- [ ] Future: factor pair/start.html into a single source via prebuild script (currently 3 identical copies, one per driver)
+- [x] Factor pair/start.html (and repair/refresh.html) into a single source — master templates at `scripts/templates/{pair-start,repair-refresh}.html`; `scripts/sync-views.js` writes each driver's copy from them; auto-runs as the npm `prerun` / `prevalidate` / `prevalidate-publish` hook so editing the template is enough.
 
 ## Phase 7 — Data miner
 
@@ -104,7 +104,7 @@ Goal: ready for publication on the Homey App Store.
 - [ ] App name finalization — currently "Solplanet" in `.homeycompose/app.json`. Verify before App Store submission.
 - [ ] Create Homey Community support thread; set `homeyCommunityTopicId` in manifest
 - [ ] App Store metadata (description, tags, category)
-- [ ] `homey app validate --level publish` passes clean
+- [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [ ] mDNS / SSDP / DHCP-table-assisted discovery for IP auto-detection (nice-to-have)
 - [ ] Custom flow cards (deferred from v1.0)
 - [ ] Evaluate TypeScript migration
