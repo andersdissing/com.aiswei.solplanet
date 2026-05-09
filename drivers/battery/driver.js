@@ -13,7 +13,18 @@ class BatteryDriver extends Homey.Driver {
   }
 
   async onRepair(session, device) {
-    session.setHandler('refresh', async () => refreshCapabilities(device));
+    this.log(`[repair] onRepair called for device "${device.getName()}" id=${device.getData() && device.getData().sid}`);
+    session.setHandler('refresh', async () => {
+      this.log('[repair] refresh handler invoked');
+      try {
+        const result = await refreshCapabilities(device);
+        this.log('[repair] refresh result:', JSON.stringify(result));
+        return result;
+      } catch (err) {
+        this.error('[repair] refresh handler threw:', err);
+        throw err;
+      }
+    });
   }
 
 }
