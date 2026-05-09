@@ -9,14 +9,16 @@ no cloud account required.
 
 What you'll see
 - Solar - Current PV power, today and lifetime production.
-- Battery -  State of charge, signed power (charging or discharging), cumulative charged and discharged energy.
+- Battery - State of charge, signed power (charging or discharging), cumulative charged and discharged energy.
 - Grid - Live grid power and lifetime imported / exported energy.
 - Home - Your real-time household consumption, derived from the inverter's own readings. Matches the "Load" reading in the Solplanet mobile app.
+
 
 What you need
 - A Solplanet / AISWEI hybrid inverter on the same Wi-Fi or Ethernet network as your Homey
 - The inverter's LAN IP address (find it in your router's DHCP table)
 - The inverter's serial number (on the device label)
+
 
 Adding your inverter
 1. In Homey, tap "Add device" and choose Solplanet.
@@ -25,18 +27,22 @@ Adding your inverter
 4. Tap Continue. Done.
 
 Repeat once per role:
-Solplanet Inverter feeds the Solar tile
-Solplanet Battery feeds the Battery tile  (only if your system has a battery)
-Solplanet Grid Meter feeds the Grid + Home tiles  (needs a grid meter wired into the inverter)
-Solplanet Home Consumption separate device tile showing the live current load  (also needs a grid meter)
+- Solplanet Inverter         - feeds the Solar tile
+- Solplanet Battery          - feeds the Battery tile (only if your system has a battery)
+- Solplanet Grid Meter       - feeds the Grid + Home tiles (needs a grid meter wired into the inverter)
+- Solplanet Home Consumption - separate device tile showing the live current load (also needs a grid meter)
+
 If your system doesn't have a battery or a grid meter, those pairings will tell you and steer you to skip them. Add only what you have.
-Tariff and pricing This app emits clean kWh values; cost is computed by whichever tariff app you already use in Homey. Nothing to set up here.
+
+
+Tariff and pricing
+This app emits clean kWh values; cost is computed by whichever tariff app you already use in Homey. Nothing to set up here.
+
 
 Reading two similar-looking values
-The Grid Meter device shows "Grid power" — a SIGNED value: positive
-means importing from the grid, negative means exporting to it.
-The Home Consumption device shows the actual current load of your
-house, always positive. The two are different and both useful.
+The Grid Meter device shows "Grid power" - a SIGNED value: positive means importing from the grid, negative means exporting to it.
+The Home Consumption device shows the actual current load of your house, always positive. The two are different and both useful.
+
 
 Notes for v1.0
 - Local network only - no cloud, no internet round-trip.
