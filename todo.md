@@ -86,7 +86,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `CHANGELOG.md` — v1.0.0 initial entry
 - [x] `homey app validate --level verified` passes (added `platforms`, `support`, per-driver `platforms` + `connectivity`)
 - [x] GitHub Actions workflows added via `homey app add-github-workflows` (validate / publish / version)
-- [!] Add `HOMEY_PAT` secret to GitHub repo before the publish workflow can run (PAT from https://tools.developer.homey.app/me) — user task
+- [x] Add `HOMEY_PAT` secret to GitHub repo — set via `gh secret set HOMEY_PAT` piped from the local `.env`; the publish workflow can now run.
 - [x] Create GitHub repo `andersdissing/com.aiswei.solplanet` and `git push -u origin main` — done; merged origin/main (initial LICENSE commit) into local main and pushed.
 - [x] Add notes about the difference between "Home consumption" and Grid Power. Include clarification on how Grid Power is calculated and add references to Homey's own documentation to the readme (Github) and readme for Homey app — new "Reading the values" section in `README.md` and a corresponding paragraph in `readme.txt`.
 - [ ] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
