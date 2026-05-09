@@ -1,0 +1,29 @@
+{
+  "name": "com.aiswei.solplanet",
+  "version": "1.0.0",
+  "main": "app.js",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "install-app": "homey app install",
+    "run": "homey app run",
+    "validate": "homey app validate --level debug",
+    "validate-publish": "homey app validate --level publish",
+    "mine": "node scripts/data-miner.js",
+    "compare": "node scripts/compare.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "homepage": "https://github.com/andersdissing/com.aiswei.solplanet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andersdissing/com.aiswei.solplanet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andersdissing/com.aiswei.solplanet/issues"
+  }
+}

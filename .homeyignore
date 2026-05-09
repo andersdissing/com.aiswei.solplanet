@@ -1,0 +1,10 @@
+debug/
+scripts/
+docs/
+.git/
+.gitignore
+.env
+.env.local
+.env.*.local
+*.md
+node_modules/.cache/

@@ -7,8 +7,9 @@ A Homey app for Solplanet / AISWEI **hybrid** solar inverters (PV + battery + gr
 
 ## Goals
 
-- **v1.0:** Energy tab support only. No custom flow cards. Plain JavaScript (CommonJS), Homey SDK 3. GitHub-installable; App Store submission deferred to v1.1.
+- **v1.0 / Phase 1:** Energy tab support only. No custom flow cards. Plain JavaScript (CommonJS), Homey SDK 3. GitHub-installable; App Store submission deferred to v1.1.
 - **Sub-goal 1 (v1.0):** Show current Home load and enable pricing via the user's tariff app.
+- **v1.1 / Phase 2 — Publishing readiness:** Get the app ready for publication on the Homey App Store. Follow [Homey's publishing guide](https://apps.developer.homey.app/app-store/publishing) and developer best practices end-to-end — store-quality assets, polished user-facing `readme.txt`, brand finalization, Homey Community support thread, complete App Store metadata, and a clean `homey app validate --level publish`.
 
 ## Architecture
 

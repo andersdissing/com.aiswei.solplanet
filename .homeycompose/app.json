@@ -1,0 +1,28 @@
+{
+  "id": "com.aiswei.solplanet",
+  "version": "1.0.0",
+  "compatibility": ">=12.0.0",
+  "sdk": 3,
+  "name": {
+    "en": "Solplanet"
+  },
+  "description": {
+    "en": "Connect your Solplanet / AISWEI hybrid solar inverter to Homey's Energy tab — see solar production, battery, grid flow and home consumption in real time."
+  },
+  "category": ["energy"],
+  "brandColor": "#0B7AB8",
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Anders Dissing",
+    "email": "ameq@ameq.dk"
+  },
+  "source": "https://github.com/andersdissing/com.aiswei.solplanet",
+  "bugs": {
+    "url": "https://github.com/andersdissing/com.aiswei.solplanet/issues"
+  }
+}
