@@ -1,7 +1,7 @@
 {
   "id": "home",
   "name": {
-    "en": "Solplanet PV"
+    "en": "Solplanet Home Consumption"
   },
   "class": "sensor",
   "platforms": ["local"],
@@ -11,8 +11,8 @@
     "meter_power"
   ],
   "capabilitiesOptions": {
-    "measure_power": { "title": { "en": "PV" } },
-    "meter_power":   { "title": { "en": "PV energy total" } }
+    "measure_power": { "title": { "en": "Home Consumption" } },
+    "meter_power":   { "title": { "en": "Home Consumption total" } }
   },
   "images": {
     "small": "/drivers/meter/assets/images/small.png",

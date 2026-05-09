@@ -153,7 +153,7 @@
     {
       "id": "home",
       "name": {
-        "en": "Solplanet PV"
+        "en": "Solplanet Home Consumption"
       },
       "class": "sensor",
       "platforms": [
@@ -169,12 +169,12 @@
       "capabilitiesOptions": {
         "measure_power": {
           "title": {
-            "en": "PV"
+            "en": "Home Consumption"
           }
         },
         "meter_power": {
           "title": {
-            "en": "PV energy total"
+            "en": "Home Consumption total"
           }
         }
       },
