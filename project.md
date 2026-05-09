@@ -163,13 +163,11 @@ Per Homey's guidelines:
 - App id: `com.aiswei.solplanet`
 - Path: `c:\homey\com.aiswei.solplanet`
 - GitHub: https://github.com/andersdissing/com.aiswei.solplanet
-- Reference (inspiration only): `C:\code\homey\nl.mmaaikel.solplanet`
-- Plan file (this conversation): `C:\Users\ameqd\.claude\plans\zesty-waddling-moth.md`
 
 ## Instructions for Claude Code sessions
 
 1. **Tasks live only in [todo.md](./todo.md).** Do not maintain task lists in chat, in this file, or in commit messages — update `todo.md` directly. Status markers: `[ ]` open · `[~]` in-progress · `[x]` done · `[!]` blocked (note reason inline).
 2. Treat the architecture and capability table above as decisions, not suggestions. If a decision needs to change, update both this file and `todo.md` in the same change.
-3. No custom flow cards in v1.
+3. No custom flow cards for now.
 4. No unit tests required.
 5. Plain JavaScript / CommonJS only — no TypeScript build step in v1.
