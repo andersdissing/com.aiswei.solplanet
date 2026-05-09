@@ -64,6 +64,36 @@ If your system is PV-only, only the Inverter pairing will succeed; the others wi
 
 The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. See `docs/energy-modeling.md` for the design discussion.
 
+## Reading the values: Grid power vs Home consumption
+
+Two of the readings this app exposes look superficially similar but mean different things. It's worth keeping them straight.
+
+**Grid power** lives on the *Grid Meter* device (`measure_power`). It is a **signed** value taken directly from the inverter's grid-meter port (device 3, field `pac`):
+
+- **Positive** → your house is currently **importing** energy from the public grid (the grid is supplying you).
+- **Negative** → your house is currently **exporting** to the grid (excess solar / battery flowing back).
+- **0** → momentary balance.
+
+So a number like `-6170 W` means "we're sending 6.17 kW out to the grid right now" — that's a typical sunny-day reading on a system with surplus PV.
+
+**Home consumption** lives on the *Solplanet Home Consumption* device (`measure_power`, label *Home Consumption*). It is the **total power your house is using** right now and is **always ≥ 0**. Because the inverter does not expose it directly, it is computed from energy conservation:
+
+```
+home_W  =  PV_W  +  grid_signed_W  −  battery_signed_W
+```
+
+with `grid_signed` = +import / −export and `battery_signed` = +charging / −discharging. The corresponding cumulative `meter_power` capability ("Home Consumption total") accumulates the same balance applied to the lifetime kWh counters.
+
+This is the same derivation Homey's Energy tab uses for its **Home** tile. On a real run, the device's Home Consumption reading matches the Solplanet mobile app's *Load* figure within sampling jitter (a percent or so of gross flow).
+
+**Why have both?** Because they answer different questions. *Grid power* tells you how your house is interacting with the utility right now (importing or selling). *Home consumption* tells you how much your house is actually using, regardless of whether that energy came from the panels, from the grid, or out of the battery.
+
+For the underlying SDK rules — what the cumulative meter is, what the `solarpanel` and `battery` classes contribute, and how the Home residual is computed — see Homey's official docs:
+
+- Energy SDK: https://apps.developer.homey.app/the-basics/devices/energy
+- Energy tab user-facing article: https://support.homey.app/hc/en-us/articles/19383696079132-Understanding-the-Homey-Energy-tab
+- This app's design notes: [`docs/energy-modeling.md`](./docs/energy-modeling.md)
+
 ## Architecture
 
 - **Three drivers**, one per Energy-tab role (`inverter` / `battery` / `meter`).

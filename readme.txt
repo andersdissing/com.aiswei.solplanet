@@ -26,6 +26,21 @@ After adding the devices, all four Energy tiles populate:
   - Grid:   whole-home power, cumulative imported and exported
   - Home:   computed by Homey as the grid value minus all known consumers
 
+Reading the values
+The Grid Meter device's "Grid power" is a SIGNED value:
+  positive = importing FROM the grid, negative = exporting TO the grid.
+So -6170 W means your house is sending 6.17 kW back to the utility.
+
+The Home Consumption device shows how much power your house is
+actually using. Because the inverter does not report this directly
+the app derives it as PV + grid_signed - battery_signed. It is
+always >= 0 and matches the "Load" reading in the Solplanet mobile
+app within sampling jitter.
+
+For more on how Homey derives the Energy-tab Home tile, see:
+  https://apps.developer.homey.app/the-basics/devices/energy
+  https://support.homey.app/hc/en-us/articles/19383696079132-Understanding-the-Homey-Energy-tab
+
 Limitations (v1.0)
 - Local LAN only; no cloud connection
 - One inverter per pairing; multi-inverter setups need to add each

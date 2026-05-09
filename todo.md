@@ -46,7 +46,7 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
 - [x] Fix `unknown_error_getting_file` when triggering Repair — actual root cause confirmed by the iframe URL: Homey looks up repair views at `drivers/<id>/repair/<view>.html`, NOT `drivers/<id>/pair/<view>.html` (pair and repair use parallel sibling folders). Moved each driver's `pair/refresh.html` to `repair/refresh.html`. (The earlier `id: "repair"` collision and `template` field misuse were red herrings, but renaming to `refresh` is fine to keep.)
 - [x] Revert the inverter `meter_power` title back to "Energy" — removed the `capabilitiesOptions.meter_power` override (Homey's default title is "Energy")
-- [x] Expose **Home consumption** as a standalone device — driver `home` (class `sensor`, manifest name "Solplanet PV"). Capabilities titled "PV" (`measure_power`) and "PV energy total" (`meter_power`); the underlying values are the energy-balance derivation `pv + grid_signed − battery_signed` (instant) and `pv_total + imp − exp − charge + disch` (lifetime). Pairing requires a grid meter (the formula needs it). Driver id stays `home` so already-paired devices keep working after a Repair → Refresh.
+- [x] Expose **Home consumption** as a standalone device — driver `home` (class `sensor`, manifest name "Solplanet Home Consumption"). Capabilities titled "Home Consumption" (`measure_power`) and "Home Consumption total" (`meter_power`); the underlying values are the energy-balance derivation `pv + grid_signed − battery_signed` (instant) and `pv_total + imp − exp − charge + disch` (lifetime). Pairing requires a grid meter (the formula needs it). Driver id stays `home` so already-paired devices keep working after a Repair → Refresh.
 - [x] Rename the meter's `measure_power` title from default "Power" to "Grid power" — kept after the home device split so the meter device tile reads "Grid power" and the home device reads "Home consumption".
 - [x] Home driver icons — reusing the meter driver's existing 75×75 / 500×500 PNGs via cross-driver image reference; no new files generated.
 
@@ -87,8 +87,8 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `homey app validate --level verified` passes (added `platforms`, `support`, per-driver `platforms` + `connectivity`)
 - [x] GitHub Actions workflows added via `homey app add-github-workflows` (validate / publish / version)
 - [!] Add `HOMEY_PAT` secret to GitHub repo before the publish workflow can run (PAT from https://tools.developer.homey.app/me) — user task
-- [ ] Create GitHub repo `andersdissing/com.aiswei.solplanet` (if not already) and `git push -u origin main` — user task
-- [ ] Add notes about the difference between "Home consumption" and Grid Power. Include clarification on how Grid Power is calculated and add references to Homey's own documentation to the readme (Github) and readme for Homey app.
+- [x] Create GitHub repo `andersdissing/com.aiswei.solplanet` and `git push -u origin main` — done; merged origin/main (initial LICENSE commit) into local main and pushed.
+- [x] Add notes about the difference between "Home consumption" and Grid Power. Include clarification on how Grid Power is calculated and add references to Homey's own documentation to the readme (Github) and readme for Homey app — new "Reading the values" section in `README.md` and a corresponding paragraph in `readme.txt`.
 - [ ] Tag `v1.0.0` after the on-hardware validation in Phase 6 — user task
 
 ## Phase 9 — v1.1 / Phase 2: Publishing readiness
