@@ -57,13 +57,13 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 7 — Data miner
 
-- [ ] `scripts/data-miner.js` reads connection from `.env` (`SOLPLANET_IP`, `SOLPLANET_SN`, `SOLPLANET_INTERVAL`, `SOLPLANET_DURATION`, `SOLPLANET_DEVICE_NR`); CLI flags `--ip --sn --interval --duration` override env values; writes `debug/snapshots.ndjson` + `debug/snapshot-<tsMs>.json`
-- [ ] Commit `.env.example` documenting the keys (no real values)
-- [ ] Confirm `.homeyignore` excludes `.env*` so secrets never ship in the app bundle
-- [ ] Handle SIGINT — write `debug/_session.json` index on exit
-- [ ] `scripts/compare.js` — read latest snapshot + `homey app device list --json`, write side-by-side diff to `debug/compare-latest.txt`
-- [ ] `npm run mine` and `npm run compare` scripts in package.json
-- [ ] `docs/data-mining.md` — three-terminal workflow, dev-mode-only caveat, ndjson format spec
+- [x] `scripts/data-miner.js` reads connection from `.env` (`SOLPLANET_IP`, `SOLPLANET_SN`, `SOLPLANET_INTERVAL`, `SOLPLANET_DURATION`); CLI flags override env; writes `debug/snapshots.ndjson` + `debug/snapshot-<tsMs>.json`
+- [x] Commit `.env.example` documenting the keys (no real values)
+- [x] Confirm `.homeyignore` excludes `.env*` so secrets never ship in the app bundle (already done in Phase 1)
+- [x] Handle SIGINT/SIGTERM — write `debug/_session.json` index on exit
+- [x] `scripts/compare.js` — reads latest snapshot, prints labelled inverter-vs-capability table, also writes `debug/compare-latest.txt`. Note: Homey CLI doesn't expose live capability state to external scripts in v1, so this is a manual eyeball against the Homey app UI (documented in `docs/data-mining.md`).
+- [x] `npm run mine` and `npm run compare` scripts in package.json (added in Phase 1)
+- [x] `docs/data-mining.md` — three-terminal workflow, snapshot format, CLI overrides, battery-sign-check use-case
 
 ## Phase 8 — Docs & release
 

@@ -9,8 +9,8 @@ debug/
 
 # Local secrets — inverter IP/serial for the data miner
 .env
-.env.local
-.env.*.local
+.env*
+!.env.example
 
 # Claude Code local settings
 .claude/settings.local.json
