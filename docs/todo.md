@@ -106,7 +106,7 @@ Goal: ready for publication on the Homey App Store.
 - [x] Set `homeyCommunityTopicId` in manifest to `154698` — done.
 - [x] Update **Tags** in `.homeycompose/app.json` — added a 14-entry English tag list (solar, PV, inverter, hybrid inverter, battery, home battery, grid, grid meter, energy, energy monitoring, home consumption, Solplanet, AISWEI, solar panels). Add Danish (`da`) translations during App Store polish.
 - [x] **Permissions** in `.homeycompose/app.json` — verified empty (`[]`) is correct: the app makes HTTP calls to the inverter on the LAN, which Homey allows by default; no special API permissions needed.
-- [ ] **Environment** in `.homeycompose/app.json` — `environment` isn't a standard Homey manifest field. If this referred to the per-driver `platforms` / `connectivity` blocks they're already set (`local` / `lan`). Clarify what was intended.
+- [x] **Environment** in `.homeycompose/app.json` — skipped per user decision; not a standard Homey manifest field.
 - [ ] Find a better small / large image for the **app** — something with a grassy field and solar panels (reference: https://www.istockphoto.com/photo/solar-panels-in-a-field-of-grass-gm184370293-17486314 — but use a watermark-free / properly-licensed source).
 - [ ] Find a better small / large image for **driver `inverter`**.
 - [ ] Find a better small / large image for **driver `battery`**.
