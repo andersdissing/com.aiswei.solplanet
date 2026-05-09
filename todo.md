@@ -27,9 +27,9 @@ Single source of truth for pending implementation work. See [project.md](./proje
 
 ## Phase 3 — Device base
 
-- [ ] `lib/InverterDevice.js` shared base class (settings init, coordinator subscribe in `onInit`, unsubscribe in `onDeleted`/`onUninit`, midnight-zero helper, monotonic guard, `setCapabilityWithCatch`)
-- [ ] `lib/pairing.js` — shared pairing helper (validate + listDevices) parameterized by driver role
-- [ ] Decide battery `measure_power` sign convention via data-miner empirical check (Phase 7 prerequisite)
+- [x] `lib/InverterDevice.js` shared base class (settings init, coordinator subscribe in `onInit`, re-subscribe on `onSettings`, unsubscribe in `onDeleted`/`onUninit`, `setCapabilityWithCatch`, `setMonotonicCapability`, `isMidnightWindow` helper)
+- [x] `lib/pairing.js` — shared pairing helper (`createPairingHandlers(role)` returning `{ validate, listDevices }`); battery / meter roles probe their subsystem and return a friendly error if absent
+- [!] Decide battery `measure_power` sign convention via data-miner empirical check (Phase 7 prerequisite) — blocked: requires real-hardware data run
 
 ## Phase 4 — Drivers
 
