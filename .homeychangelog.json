@@ -1,5 +1,8 @@
 {
   "1.0.0": {
     "en": "Initial release. Connect a Solplanet / AISWEI hybrid inverter to Homey's Energy tab: Solar, Battery, Grid and Home tiles populate from PV / battery / grid-meter readings, with auto-detection on the LAN, a dedicated Home Consumption device for current load, and Repair-flow support."
+  },
+  "1.0.1": {
+    "en": "Drop the standalone Solplanet Home Consumption device. Home consumption is now visible only in the Energy tab's Home tile (computed by Homey from the cumulative grid meter). Existing paired Home Consumption devices need to be removed manually after the update."
   }
 }

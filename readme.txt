@@ -27,10 +27,9 @@ Adding your inverter
 4. Tap Continue. Done.
 
 Repeat once per role:
-- Solplanet Inverter         - feeds the Solar tile
-- Solplanet Battery          - feeds the Battery tile (only if your system has a battery)
-- Solplanet Grid Meter       - feeds the Grid + Home tiles (needs a grid meter wired into the inverter)
-- Solplanet Home Consumption - separate device tile showing the live current load (also needs a grid meter)
+- Solplanet Inverter   - feeds the Solar tile
+- Solplanet Battery    - feeds the Battery tile (only if your system has a battery)
+- Solplanet Grid Meter - feeds the Grid + Home tiles (needs a grid meter wired into the inverter)
 
 If your system doesn't have a battery or a grid meter, those pairings will tell you and steer you to skip them. Add only what you have.
 

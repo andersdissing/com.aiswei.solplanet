@@ -15,16 +15,15 @@ Homey's Energy tab has four tiles: **Solar**, **Home**, **Battery**, **Grid**. E
 
 ## Mapping a hybrid inverter to those tiles
 
-A Solplanet hybrid inverter physically integrates PV, battery and grid metering, but for Homey it must present as **three Energy-tab-feeding devices** (plus one extra device that's purely for visibility):
+A Solplanet hybrid inverter physically integrates PV, battery and grid metering, but for Homey it must present as **three logical devices**:
 
 | Driver | Class | Energy block | Tile |
 |---|---|---|---|
 | `inverter` | `solarpanel` | (none — class alone is enough) | Solar |
 | `battery` | `battery` | `homeBattery: true`, `meterPowerImportedCapability: meter_power.charged`, `meterPowerExportedCapability: meter_power.discharged` | Battery |
 | `meter` | `sensor` | `cumulative: true`, `cumulativeImportedCapability: meter_power.imported`, `cumulativeExportedCapability: meter_power.exported` | Grid + Home |
-| `home` | `sensor` | (none — passive consumer; would otherwise double-count) | (n/a — separate device tile only) |
 
-The user adds each separately (one Add-device per driver). The shared pair UI validates the connection and only lists the device if the corresponding subsystem is actually reported. The `home` driver intentionally has no `energy` block and no `cumulative: true` flag so Homey doesn't subtract it from the residual — it computes `pv + grid − battery` independently and exposes it as a regular device tile / Insights graph for users who want to see "current load" directly.
+The user adds each separately (one Add-device per driver). The shared pair UI validates the connection and only lists the device if the corresponding subsystem is actually reported. Home consumption is a derived value — Homey's Energy tab "Home" tile computes it as the cumulative meter minus all known consumers; we don't surface it as its own device because that would double-count against the cumulative meter. (A standalone `home` driver shipped briefly in 1.0.0 for this purpose; dropped in 1.0.1.)
 
 ## The reference-app modeling bug we fixed
 

@@ -37,8 +37,7 @@ Add-Type -AssemblyName System.Drawing
    $drivers = @(
        @{ Id = 'inverter'; Label = 'Inverter' },
        @{ Id = 'battery';  Label = 'Battery'  },
-       @{ Id = 'meter';    Label = 'Grid'     },
-       @{ Id = 'home';     Label = 'Home'     }
+       @{ Id = 'meter';    Label = 'Grid'     }
    )
    foreach ($d in $drivers) {
        $path = "$driverBase\$($d.Id)\assets\images"

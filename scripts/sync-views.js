@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const DRIVERS = ['inverter', 'battery', 'meter', 'home'];
+const DRIVERS = ['inverter', 'battery', 'meter'];
 
 const SYNCS = [
   {

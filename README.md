@@ -32,12 +32,11 @@ homey app install
 
 ## Pairing
 
-You'll run **Add device → Solplanet** up to **four times**, once per role:
+You'll run **Add device → Solplanet** up to **three times**, once per role:
 
 1. **Inverter** (Solar tile)
 2. **Battery** (Battery tile) — only succeeds if your inverter reports a battery
 3. **Grid Meter** (Grid + Home tiles) — only succeeds if your inverter reports a grid meter
-4. **Home Consumption** (separate device tile for current load `pv + grid − battery`) — also requires a grid meter
 
 Each pairing dialog runs an automatic LAN scan on open: it walks your local /24 subnet at 64 concurrent probes, looking for hosts that respond on `:8484/getdev.cgi` with a Solplanet `inv[]` JSON shape. Inverters it finds appear at the top of the dialog — tap one to pre-fill the IP and serial, then click Continue.
 
@@ -64,10 +63,8 @@ If your system is PV-only, only the Inverter pairing will succeed; the others wi
 | meter | | `meter_power.exported` (kWh) | `MeterData.oet` | ×0.1 |
 | meter | | `meter_power.imported_today` | `MeterData.itd` | ×0.01 |
 | meter | | `meter_power.exported_today` | `MeterData.otd` | ×0.01 |
-| home | `sensor` | `measure_power` (W, ≥ 0) | derived: `pv + grid − battery` | n/a |
-| home | | `meter_power` (kWh) | derived: `pv_total + imp − exp − charge + disch` | n/a |
 
-The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. The `home` driver is a non-cumulative passive sensor that exposes the same residual as a regular device tile (and an Insights graph) for users who want to see current load directly. See `docs/energy-modeling.md` for the design discussion.
+The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. See `docs/energy-modeling.md` for the design discussion.
 
 ## Reading the values: Grid power vs Home consumption
 
@@ -101,9 +98,9 @@ For the underlying SDK rules — what the cumulative meter is, what the `solarpa
 
 ## Architecture
 
-- **Four drivers**: `inverter` / `battery` / `meter` feed the Energy-tab tiles; `home` exposes the derived current-load value as its own device tile.
+- **Three drivers**: `inverter` / `battery` / `meter` — one per Energy-tab role.
 - **Shared HTTP layer** in `lib/`: `SolplanetClient` (transport, port 8484, no auth), `SolplanetApi` (the six endpoint methods), `fields.js` (pure parsers with documented scale factors), `discovery.js` (active LAN scan used by pairing).
-- **One polling coordinator** (`lib/SolplanetCoordinator.js`) keyed by `ip:serial`. All four devices on the same physical inverter share a single timer, so the inverter's tiny embedded HTTP server gets ~1× the load instead of 4×, and every device sees a consistent snapshot per tick.
+- **One polling coordinator** (`lib/SolplanetCoordinator.js`) keyed by `ip:serial`. All three devices on the same physical inverter share a single timer, so the inverter's tiny embedded HTTP server gets ~1× the load instead of 3×, and every device sees a consistent snapshot per tick.
 - **Failure handling**: 3 consecutive failures back off to a 5-minute probe interval and mark devices unavailable; first success restores the configured interval.
 - **Polling default** 60 s, configurable per device 5–300 s.
 
