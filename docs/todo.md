@@ -40,7 +40,6 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `drivers/meter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `sensor`, `energy.cumulative: true`, `cumulativeImported|ExportedCapability` mapped to `meter_power.imported`/`exported`
 - [x] `locales/en.json` and `locales/da.json` — empty stubs in v1 (capability titles inlined in driver.compose.json; expand for runtime strings if needed)
 - [x] `create-icon.ps1` extended to generate driver tile images (75×75 / 500×500)
-- [x] Add a configuration option to exclude selling electricity from the "Electricity Total" Energy-tab — meter device setting `exclude_grid_exports` (default off); when on, `meter_power.exported`/`meter_power.exported_today` are not written, freezing the counter
 - [x] For the inverter driver, rename the `meter_power` capability title from "Energy" to "Energy, current load"
 - [x] Default name for the inverter appends "Inverter" postfix (e.g. `<model> Inverter`) to match the battery/meter naming
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
