@@ -16,8 +16,13 @@ class MeterDeviceImpl extends InverterDevice {
     }
 
     const excludeExports = this.getSetting('exclude_grid_exports') === true;
+    const clampNegativeGridPower = this.getSetting('clamp_negative_grid_power') === true;
 
-    await this.setCapabilityWithCatch('measure_power', m.gridPower_W);
+    let gridPower = m.gridPower_W;
+    if (clampNegativeGridPower && typeof gridPower === 'number' && gridPower < 0) {
+      gridPower = 0;
+    }
+    await this.setCapabilityWithCatch('measure_power', gridPower);
     await this.setMonotonicCapability('meter_power.imported', m.importedTotalKWh);
 
     if (!excludeExports) {

@@ -118,7 +118,7 @@ Goal: ready for publication on the Homey App Store.
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
 - [x] Custom flow cards — declined per user decision (twice). Built-in Homey energy flows cover the use cases.
-- [ ] Meter device: add a toggle setting `clamp_negative_grid_power` (default off); when on, any negative `measure_power` value (i.e. exporting to grid) is clamped to `0` before being written to the capability — so the meter's "Grid power" reading never goes negative.
+- [x] Meter device: add a toggle setting `clamp_negative_grid_power` (default off); when on, any negative `measure_power` value (i.e. exporting to grid) is clamped to `0` before being written to the capability — so the meter's "Grid power" reading never goes negative. Implemented in `drivers/meter/device.js` + `driver.compose.json` (new "Grid power" settings group).
 
 ---
 

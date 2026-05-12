@@ -419,6 +419,25 @@
               "value": false
             }
           ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Grid power"
+          },
+          "children": [
+            {
+              "id": "clamp_negative_grid_power",
+              "type": "checkbox",
+              "label": {
+                "en": "Never show negative grid power"
+              },
+              "hint": {
+                "en": "When enabled, any negative \"Grid power\" reading (i.e. exporting to the grid) is clamped to 0 W. Useful if you don't want Homey flows or graphs to react to brief export spikes."
+              },
+              "value": false
+            }
+          ]
         }
       ]
     }
