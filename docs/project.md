@@ -160,6 +160,59 @@ Per Homey's guidelines:
 - Drivers & devices (icon placement): https://apps.developer.homey.app/the-basics/devices.md
 - App manifest icon paths: https://apps.developer.homey.app/the-basics/app/manifest
 
+### Lessons learned (icon rendering & caching)
+
+The app icon is rendered through different pipelines on different surfaces of the Homey mobile app and dashboard. They are not equivalent; an SVG that renders fine in one surface can render as a blank brand-colour disc in another. We hit this hard during 1.0.0 polish; what follows is what survives across all surfaces, and what specifically broke.
+
+**Surfaces that render the app icon, in roughly increasing order of strictness:**
+
+1. **My Apps** (apps list) — most permissive. Most legal SVGs render here.
+2. **App Settings** (gear icon on the app) — same renderer as My Apps in practice.
+3. **Add-Device list** (where you pick which app's device to add) — strictest. The icon is shown as a white silhouette inside a brand-colour circle, i.e. used as a CSS-style alpha mask. Rejects SVGs that the other two surfaces accept.
+
+**SVG structure that worked across all surfaces:**
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <g fill="#000000" stroke="none">
+    <path d="…"/>
+    <path d="…"/>
+  </g>
+</svg>
+```
+
+- **Explicit `width` and `height`** on the `<svg>`. Missing dimensions broke Add-Device.
+- **viewBox at zero origin** (`0 0 W H`). Non-zero origins (`viewBox="1 2 124 120"`) broke Add-Device.
+- **One closed shape per `<path>`**, each terminated with `Z`. Combining multiple sub-shapes into a single `<path>` via repeated `M …` joins (potrace's default output) broke Add-Device.
+- **No `fill-rule="evenodd"`**. The default `nonzero` works; `evenodd` broke Add-Device.
+- **Group-level `fill`** via `<g fill="#000000">`. Matches Homey reference apps.
+- **Transparent background — no `<rect>` fill behind the artwork.** Homey composites the SVG over `brandColor` itself; baking a `<rect fill="brandColor"/>` violates the published guideline ("don't use a background color in your icon") and is double-painting on surfaces that overlay the brand-colour disc.
+
+**SVG structure that did NOT work:**
+
+- Single `<path>` with multiple `M`-joined sub-paths and `fill-rule="evenodd"` (typical potrace export). Renders fine in browser preview and in My Apps / App Settings. Add-Device shows an empty brand-colour disc. Splitting into one closed `<path>` per shape and dropping `evenodd` fixed it without changing the artwork.
+- Missing `width` / `height`. Add-Device falls back to a zero-size mask.
+- Non-zero viewBox origin. Same symptom — empty disc in Add-Device.
+
+**Cache behaviour (the part that ate the most time):**
+
+- **My Apps and App Settings icon caches refresh on every `homey app install`.** Reasonable.
+- **The Add-Device list icon cache does NOT refresh on `homey app install`, and does NOT refresh on a Homey hub reboot.** Once a "broken" icon (or the absence of one) is recorded for an app id on this surface, reinstalling new icons leaves it stuck.
+- **The only reliable invalidation is a full uninstall from the mobile app, then reinstall.** After that, the Add-Device list picks up the icon shipped in the install.
+
+Practical workflow when iterating on the icon:
+
+1. Edit `assets/icon.svg`.
+2. Verify the SVG structure against the rules above before installing.
+3. `homey app install` — confirms it renders in My Apps / App Settings.
+4. To verify Add-Device specifically: uninstall the app from the Homey mobile app (Solplanet → settings → Remove), then `homey app install` again. Expect to lose any test devices already paired and re-pair after.
+
+### Driver SVG icons (required, separate from the PNGs)
+
+In addition to the per-driver PNG product photos at `drivers/<id>/assets/images/{small,large}.png` (used on driver tiles in dashboards and the App Store), each driver requires its own SVG at `drivers/<id>/assets/icon.svg`. This SVG is what the Add-Device flow shows as the driver tile when you pick which kind of device to add. Without it the tile is blank.
+
+The same structural rules above apply: explicit width/height, zero-origin viewBox, group-level fill, no `fill-rule="evenodd"`, transparent background.
+
 ## Project metadata
 
 - App id: `com.aiswei.solplanet`
