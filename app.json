@@ -404,36 +404,17 @@
         {
           "type": "group",
           "label": {
-            "en": "Energy total"
+            "en": "Electricity Total"
           },
           "children": [
             {
               "id": "exclude_grid_exports",
               "type": "checkbox",
               "label": {
-                "en": "Exclude grid exports from Energy total"
+                "en": "Exclude electricity sold back to the grid"
               },
               "hint": {
-                "en": "When enabled, electricity sold back to the grid is not written to the exported counters and so is excluded from Homey's Electricity Total. Toggling this on freezes the exported counter at its last value; toggling off resumes writing the live meter reading."
-              },
-              "value": false
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "label": {
-            "en": "Grid power"
-          },
-          "children": [
-            {
-              "id": "clamp_negative_grid_power",
-              "type": "checkbox",
-              "label": {
-                "en": "Never show negative grid power"
-              },
-              "hint": {
-                "en": "When enabled, any negative \"Grid power\" reading (i.e. exporting to the grid) is clamped to 0 W. Useful if you don't want Homey flows or graphs to react to brief export spikes."
+                "en": "When enabled, electricity sold back to the grid is excluded from Homey's Electricity Total, e.g. in the energy-tab. The exported kWh counter on this device still tracks real values so you can use it in flows and insights."
               },
               "value": false
             }
