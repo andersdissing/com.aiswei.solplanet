@@ -118,7 +118,14 @@ Goal: ready for publication on the Homey App Store.
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
 - [x] Custom flow cards — declined per user decision (twice). Built-in Homey energy flows cover the use cases.
-- [ ] Meter device: add a toggle setting `clamp_negative_grid_power` (default off); when on, any negative `measure_power` value (i.e. exporting to grid) is clamped to `0` before being written to the capability — so the meter's "Grid power" reading never goes negative.
+- [x] Meter device: toggle `exclude_grid_exports` (default off) — when on, exports are excluded from Homey's Electricity Total via `device.setEnergy(...)` at runtime (drops `cumulativeExportedCapability` from the energy block). The `meter_power.exported` / `_today` capabilities keep tracking real values every poll for insights and flows; only the Energy-tab math is affected. Applied in `onInit` and on `onSettings` change. Implemented in `drivers/meter/device.js` + `driver.compose.json` ("Electricity Total" settings group). Reuses the 1.0.x setting id so existing users' preference carries over.
+- [ ] Redraw the driver icons (`drivers/{inverter,battery,meter}/assets/icon.svg`) in a more 3D-like style while keeping the current design concept. Follow Homey's icon best practices (clear silhouette, sufficient contrast at small sizes, brand colour where appropriate). Regenerate the 75×75 / 500×500 PNGs from the new SVGs via `create-icon.ps1`.
+
+---
+
+## Phase 10 — v1.2 enhancements
+
+- [ ] Add a battery percentage indicator (`measure_battery` is already a capability on the battery driver — confirm it surfaces as a tile / Energy-tab badge, and decide if an additional surface is wanted, e.g. on the inverter device tile for hybrid systems where the battery is part of the inverter setup).
 
 ---
 
