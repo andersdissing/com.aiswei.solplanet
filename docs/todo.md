@@ -40,7 +40,6 @@ Single source of truth for pending implementation work. See [project.md](./proje
 - [x] `drivers/meter/{driver.compose.json, driver.js, device.js, assets/images/}` — class `sensor`, `energy.cumulative: true`, `cumulativeImported|ExportedCapability` mapped to `meter_power.imported`/`exported`
 - [x] `locales/en.json` and `locales/da.json` — empty stubs in v1 (capability titles inlined in driver.compose.json; expand for runtime strings if needed)
 - [x] `create-icon.ps1` extended to generate driver tile images (75×75 / 500×500)
-- [x] Add a configuration option to exclude selling electricity from the "Electricity Total" Energy-tab — meter device setting `exclude_grid_exports` (default off); when on, `meter_power.exported`/`meter_power.exported_today` are not written, freezing the counter
 - [x] For the inverter driver, rename the `meter_power` capability title from "Energy" to "Energy, current load"
 - [x] Default name for the inverter appends "Inverter" postfix (e.g. `<model> Inverter`) to match the battery/meter naming
 - [x] Repair flow on all three drivers — `lib/repair.js` removes/re-adds each capability to force Homey to reload manifest metadata; per-driver `pair/repair.html` exposes a "Refresh now" button via the device's three-dot Repair menu
@@ -119,6 +118,7 @@ Goal: ready for publication on the Homey App Store.
 - [x] `homey app validate --level publish` passes clean — already passing at the stricter `verified` level since Phase 8.
 - [x] Auto-discovery for IP — implemented as an active LAN scan (`lib/discovery.js`) since the inverter's mDNS broadcasts weren't available. The scan walks the host's /24 subnet at 64 concurrent probes, hits `:8484/getdev.cgi?device=2` with a placeholder serial, and treats any host returning a Solplanet `inv[]` JSON shape as a hit. The pair view starts a scan on load, lists found inverters tappable to pre-fill IP+serial, and falls back to manual entry if none are found or the scan fails. Wired across all four drivers via `lib/pairing.js`.
 - [x] Custom flow cards — declined per user decision (twice). Built-in Homey energy flows cover the use cases.
+- [ ] Meter device: add a toggle setting `clamp_negative_grid_power` (default off); when on, any negative `measure_power` value (i.e. exporting to grid) is clamped to `0` before being written to the capability — so the meter's "Grid power" reading never goes negative.
 
 ---
 
