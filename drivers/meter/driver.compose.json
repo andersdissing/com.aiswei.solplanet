@@ -8,10 +8,12 @@
   "connectivity": ["lan"],
   "capabilities": [
     "measure_power",
+    "home_power",
     "meter_power.imported",
     "meter_power.exported",
     "meter_power.imported_today",
-    "meter_power.exported_today"
+    "meter_power.exported_today",
+    "home_energy"
   ],
   "capabilitiesOptions": {
     "measure_power": { "title": { "en": "Grid power" } },

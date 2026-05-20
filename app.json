@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.aiswei.solplanet",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=12.0.0",
   "sdk": 3,
   "platforms": [
@@ -296,10 +296,12 @@
       ],
       "capabilities": [
         "measure_power",
+        "home_power",
         "meter_power.imported",
         "meter_power.exported",
         "meter_power.imported_today",
-        "meter_power.exported_today"
+        "meter_power.exported_today",
+        "home_energy"
       ],
       "capabilitiesOptions": {
         "measure_power": {
@@ -422,5 +424,39 @@
         }
       ]
     }
-  ]
+  ],
+  "capabilities": {
+    "home_energy": {
+      "type": "number",
+      "title": {
+        "en": "Home consumption total",
+        "da": "Hjemmeforbrug i alt"
+      },
+      "units": {
+        "en": "kWh"
+      },
+      "decimals": 2,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor"
+    },
+    "home_power": {
+      "type": "number",
+      "title": {
+        "en": "Home consumption",
+        "da": "Hjemmeforbrug"
+      },
+      "units": {
+        "en": "W"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor"
+    }
+  }
 }

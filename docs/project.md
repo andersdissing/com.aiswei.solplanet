@@ -60,6 +60,8 @@ Ref: https://apps.developer.homey.app/wireless/energy/cumulative-meter
 | `meter_power.exported` (kWh) | `MeterData.oet` | ×0.1 | Monotonic |
 | `meter_power.imported_today` | `MeterData.itd` | ×0.01 | Daily |
 | `meter_power.exported_today` | `MeterData.otd` | ×0.01 | Daily |
+| `home_power` (W) | derived | — | Custom cap. `PV + grid_signed − battery_signed`, clamp ≥ 0. Out of energy aggregation. See [HomeyPower.md](../HomeyPower.md) |
+| `home_energy` (kWh) | derived | — | Custom cap. `pv_total + imp − exp − chg + dis`, monotonic. Out of energy aggregation |
 
 ## Polling rules
 

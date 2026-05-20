@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { homeyBatteryPower_W } = require('../lib/conventions');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const DEBUG_DIR = path.join(PROJECT_ROOT, 'debug');
@@ -52,6 +53,14 @@ function buildTileSummary(snapshot) {
   const pvToday = bat && bat.pvEnergyTodayKWh !== null ? bat.pvEnergyTodayKWh
     : inv ? inv.energyTodayKWh : null;
 
+  // Battery power in Homey's convention (+ charging / − discharging) — the same
+  // value the battery device and the home derivation use. This script previously
+  // fed the raw pb into the Home formula, which double-flipped the battery term
+  // (raw pb is + when discharging on the tested firmware). See HomeyPower.md.
+  const batHomeyW = bat && typeof bat.batteryPower_W === 'number'
+    ? homeyBatteryPower_W(bat.batteryPower_W)
+    : null;
+
   const lines = [];
   lines.push('Energy tab — values your Homey app should show right now:');
   lines.push('-'.repeat(72));
@@ -59,7 +68,7 @@ function buildTileSummary(snapshot) {
   lines.push(`  Solar    : ${fmt(pvPower, ' W')}   (lifetime ${fmt(pvTotal, ' kWh')}, today ${fmt(pvToday, ' kWh')})`);
 
   if (bat) {
-    lines.push(`  Battery  : ${fmt(bat.soc_pct, '%')}   power ${fmtSigned(bat.batteryPower_W, ' W', 'charging', 'discharging')}   (lifetime ↓${fmt(bat.chargedTotalKWh)} / ↑${fmt(bat.dischargedTotalKWh)} kWh)`);
+    lines.push(`  Battery  : ${fmt(bat.soc_pct, '%')}   power ${fmtSigned(batHomeyW, ' W', 'charging', 'discharging')}   (lifetime ↓${fmt(bat.chargedTotalKWh)} / ↑${fmt(bat.dischargedTotalKWh)} kWh)`);
   } else {
     lines.push('  Battery  : — (no battery data in this snapshot)');
   }
@@ -77,14 +86,14 @@ function buildTileSummary(snapshot) {
   // Solving for home: home = PV + grid − battery (using signed values).
   const haveAll = typeof pvPower === 'number'
     && m && typeof m.gridPower_W === 'number'
-    && bat && typeof bat.batteryPower_W === 'number';
+    && typeof batHomeyW === 'number';
   const havePvAndGrid = typeof pvPower === 'number'
     && m && typeof m.gridPower_W === 'number';
 
   let homeLine;
   if (haveAll) {
-    const home = pvPower + m.gridPower_W - bat.batteryPower_W;
-    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')} − battery ${fmtSigned(bat.batteryPower_W, '', '', '')})`;
+    const home = pvPower + m.gridPower_W - batHomeyW;
+    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')} − battery ${fmtSigned(batHomeyW, '', '', '')})`;
   } else if (havePvAndGrid) {
     const home = pvPower + m.gridPower_W;
     homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')}; no battery in derivation)`;
@@ -97,7 +106,7 @@ function buildTileSummary(snapshot) {
   lines.push('If a tile in the Homey app shows a different number, the bug is most');
   lines.push('likely a sign or scale-factor mismatch in the corresponding device.js');
   lines.push('or in lib/fields.js. Battery sign: see BATTERY_POWER_SIGN in');
-  lines.push('drivers/battery/device.js — flip from +1 to -1 if charge/discharge');
+  lines.push('lib/conventions.js — flip from +1 to -1 if charge/discharge');
   lines.push('reports the wrong sign on the Battery tile.');
   return lines.join('\n');
 }

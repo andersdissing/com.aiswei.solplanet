@@ -11,7 +11,7 @@ Homey's Energy tab has four tiles: **Solar**, **Home**, **Battery**, **Grid**. E
 | Solar | Devices with `class: solarpanel` |
 | Battery | Devices with `class: battery` and `energy.homeBattery: true` |
 | Grid | Devices with `energy.cumulative: true` (typically `class: sensor`) |
-| Home | **Derived**: cumulative meter total minus all known consumers. There is no "Home" device — Homey computes it. |
+| Home | **Derived**: cumulative meter total minus all known consumers. Homey computes the tile itself; the app additionally re-derives the same value as `home_power` / `home_energy` capabilities on the meter device (see below). |
 
 ## Mapping a hybrid inverter to those tiles
 
@@ -24,6 +24,19 @@ A Solplanet hybrid inverter physically integrates PV, battery and grid metering,
 | `meter` | `sensor` | `cumulative: true`, `cumulativeImportedCapability: meter_power.imported`, `cumulativeExportedCapability: meter_power.exported` | Grid + Home |
 
 The user adds each separately (one Add-device per driver). The shared pair UI validates the connection and only lists the device if the corresponding subsystem is actually reported. Home consumption is a derived value — Homey's Energy tab "Home" tile computes it as the cumulative meter minus all known consumers; we don't surface it as its own device because that would double-count against the cumulative meter. (A standalone `home` driver shipped briefly in 1.0.0 for this purpose; dropped in 1.0.1.)
+
+## Explicit Home consumption value (`home_power` / `home_energy`)
+
+Homey computes the **Home** tile internally but never exposes it as a capability, so it can't be
+graphed in Insights or used in Flows. As of 1.0.2 the `meter` device re-derives the same value
+and publishes it as two read-only **custom** capabilities — `home_power` (W) and `home_energy`
+(kWh) — using the energy balance `home = PV + grid_signed − battery_signed`. They are custom (not
+root `measure_power`/`meter_power`) precisely so Homey leaves them out of energy aggregation and
+they don't double-count against the cumulative grid meter (the bug that forced the 1.0.0 `home`
+driver's removal in 1.0.1).
+
+Full formulas, sign conventions, the worked edge-case table, and the `exclude_grid_exports`
+interaction live in [`HomeyPower.md`](../HomeyPower.md).
 
 ## The reference-app modeling bug we fixed
 

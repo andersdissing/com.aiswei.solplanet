@@ -126,6 +126,19 @@ Goal: ready for publication on the Homey App Store.
 
 ---
 
+## Phase 11 — v1.0.2 / Home consumption value
+
+Feature `feature/HomeyPower` · issue [#6](https://github.com/andersdissing/com.aiswei.solplanet/issues/6). See [`HomeyPower.md`](../HomeyPower.md).
+
+- [x] Surface Homey's derived "Home" as graphable / Flow-usable capabilities — added custom `home_power` (W) + `home_energy` (kWh) on the `meter` device, computed via the energy balance `PV + grid_signed − battery_signed` (instant) and `pv_total + imp − exp − chg + dis` (lifetime); clamped ≥ 0 / monotonic-guarded. Custom caps deliberately kept out of Homey's energy aggregation to avoid the 1.0.1 double-count.
+- [x] `onInit` migration — `addCapability` adds the two caps to already-paired meters on update (runs before the coordinator subscribes).
+- [x] Reconcile `scripts/compare.js` battery sign — it fed raw `pb` into the Home formula where the Homey-signed value was expected; now uses `homeyBatteryPower_W()`.
+- [x] Docs — new `HomeyPower.md`; fixed stale `README.md` "Reading the values" (referenced the removed Home Consumption device); updated `docs/energy-modeling.md`, `docs/project.md`, `CHANGELOG.md`. Version → 1.0.2.
+- [x] `npx homey app validate --level publish` passes.
+- [~] Hardware-validate on Solv2 via `homey app install` — confirm `home_power`/`home_energy` track the Solplanet app's "Load" **and** that the native Energy-tab Home/Grid tiles are unchanged (no double-count). Required before merge.
+
+---
+
 ## Decisions to confirm during implementation (non-blocking)
 
 - [x] Author / email for manifest — set as `Anders Dissing <ameq@ameq.dk>` in `.homeycompose/app.json`.
