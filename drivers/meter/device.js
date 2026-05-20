@@ -1,7 +1,6 @@
 'use strict';
 
 const InverterDevice = require('../../lib/InverterDevice');
-const { homeyBatteryPower_W } = require('../../lib/conventions');
 
 const ENERGY_BOTH = {
   cumulative: true,
@@ -84,47 +83,38 @@ class MeterDeviceImpl extends InverterDevice {
     // Derived whole-home consumption — the Energy-tab "Home" equivalent, exposed
     // as custom capabilities so it stays OUT of Homey's energy aggregation (root
     // measure_power/meter_power would be double-counted against this cumulative
-    // meter). See HomeyPower.md for the formulas, sign conventions and edge cases.
-    await this._updateHomeConsumption(snapshot.inverter, snapshot.battery, m);
+    // meter). See HomeyPower.md for the formula and edge cases.
+    await this._updateHomeConsumption(snapshot.inverter, m);
   }
 
-  // home_power  = PV + grid_signed − battery_signed         (instant, W, clamp ≥ 0)
-  // home_energy = pv_total + imported − exported − charged + discharged   (kWh)
-  //   grid_signed:    + import / − export        (MeterData.pac)
-  //   battery_signed: + charging / − discharging (homeyBatteryPower_W — verified on hw)
-  async _updateHomeConsumption(inv, bat, m) {
-    // PV power: prefer hybrid battery-side ppv (excludes battery flow); fall
-    // back to inverter pac on pure-PV. Clamp ≥ 0 (start-up can read slightly < 0).
-    let pvW = bat && bat.pvPower_W !== null
-      ? bat.pvPower_W
-      : (inv ? inv.instantPower_W : null);
-    if (typeof pvW === 'number' && pvW < 0) pvW = 0;
+  // House load is an AC-side balance: the inverter's net AC output plus the grid
+  // flow. On a hybrid the inverter's `pac` already nets battery charge/discharge
+  // and DC→AC conversion loss (the same reason the Solar tile uses ppv, not pac),
+  // so this matches the inverter's own "Load" reading and needs no battery slice.
+  //   home_power  = pac + grid_signed                      (instant, W, clamp ≥ 0)
+  //   home_energy = eto + imported − exported              (lifetime, kWh, monotonic)
+  //   grid_signed: + import / − export   (MeterData.pac)
+  // Deriving from PV DC (ppv) instead understated the value by the conversion
+  // loss (~7%); see HomeyPower.md.
+  async _updateHomeConsumption(inv, m) {
+    const pac = inv ? inv.instantPower_W : null; // net AC output (signed)
+    const gridW = m.gridPower_W;                 // + import / − export
 
-    const gridW = m.gridPower_W; // + import / − export
+    // Need inverter AC + grid to derive home; otherwise skip (no bogus 0).
+    if (typeof pac !== 'number' || typeof gridW !== 'number') return;
 
-    // Need at least PV + grid to derive home; otherwise skip (no bogus 0).
-    if (typeof pvW !== 'number' || typeof gridW !== 'number') return;
-
-    // Battery in Homey convention (+ charging / − discharging); 0 on pure-PV.
-    const battW = bat ? homeyBatteryPower_W(bat.batteryPower_W) : 0;
-    const battTerm = typeof battW === 'number' ? battW : 0;
-
-    let homeW = pvW + gridW - battTerm;
-    if (homeW < 0) homeW = 0; // sampling jitter across the 3 endpoints can dip slightly < 0
+    let homeW = pac + gridW;
+    if (homeW < 0) homeW = 0; // grid-charging / sampling jitter can dip slightly < 0
     await this.setCapabilityWithCatch('home_power', Math.round(homeW));
 
-    // Lifetime balance. Requires PV total + grid totals; battery terms default
-    // to 0 on pure-PV. Monotonic-guarded — consumption never decreases.
-    const pvTotal = bat && bat.pvEnergyTotalKWh !== null
-      ? bat.pvEnergyTotalKWh
-      : (inv ? inv.energyTotalKWh : null);
+    // Lifetime AC-side balance, consistent with the instant formula.
+    // Monotonic-guarded — consumption never decreases.
+    const eto = inv ? inv.energyTotalKWh : null; // lifetime inverter AC out
     const imported = m.importedTotalKWh;
     const exported = m.exportedTotalKWh;
 
-    if (typeof pvTotal === 'number' && typeof imported === 'number' && typeof exported === 'number') {
-      const charged = bat && typeof bat.chargedTotalKWh === 'number' ? bat.chargedTotalKWh : 0;
-      const discharged = bat && typeof bat.dischargedTotalKWh === 'number' ? bat.dischargedTotalKWh : 0;
-      const homeKWh = pvTotal + imported - exported - charged + discharged;
+    if (typeof eto === 'number' && typeof imported === 'number' && typeof exported === 'number') {
+      const homeKWh = eto + imported - exported;
       if (homeKWh >= 0) {
         await this.setMonotonicCapability('home_energy', Number(homeKWh.toFixed(2)));
       }

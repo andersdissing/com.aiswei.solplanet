@@ -130,7 +130,7 @@ Goal: ready for publication on the Homey App Store.
 
 Feature `feature/HomeyPower` · issue [#6](https://github.com/andersdissing/com.aiswei.solplanet/issues/6). See [`HomeyPower.md`](../HomeyPower.md).
 
-- [x] Surface Homey's derived "Home" as graphable / Flow-usable capabilities — added custom `home_power` (W) + `home_energy` (kWh) on the `meter` device, computed via the energy balance `PV + grid_signed − battery_signed` (instant) and `pv_total + imp − exp − chg + dis` (lifetime); clamped ≥ 0 / monotonic-guarded. Custom caps deliberately kept out of Homey's energy aggregation to avoid the 1.0.1 double-count.
+- [x] Surface Homey's derived "Home" as graphable / Flow-usable capabilities — added custom `home_power` (W) + `home_energy` (kWh) on the `meter` device, computed via the AC-busbar balance `pac + grid_signed` (instant) and `eto + imp − exp` (lifetime); clamped ≥ 0 / monotonic-guarded. Custom caps deliberately kept out of Homey's energy aggregation to avoid the 1.0.1 double-count. Hardware-confirmed against the Solplanet app *Load* (~1%); an earlier DC formula (`ppv + grid − battery`) read ~7% low and was replaced.
 - [x] `onInit` migration — `addCapability` adds the two caps to already-paired meters on update (runs before the coordinator subscribes).
 - [x] Reconcile `scripts/compare.js` battery sign — it fed raw `pb` into the Home formula where the Homey-signed value was expected; now uses `homeyBatteryPower_W()`.
 - [x] Docs — new `HomeyPower.md`; fixed stale `README.md` "Reading the values" (referenced the removed Home Consumption device); updated `docs/energy-modeling.md`, `docs/project.md`, `CHANGELOG.md`. Version → 1.0.2.

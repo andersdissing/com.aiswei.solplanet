@@ -53,10 +53,9 @@ function buildTileSummary(snapshot) {
   const pvToday = bat && bat.pvEnergyTodayKWh !== null ? bat.pvEnergyTodayKWh
     : inv ? inv.energyTodayKWh : null;
 
-  // Battery power in Homey's convention (+ charging / − discharging) — the same
-  // value the battery device and the home derivation use. This script previously
-  // fed the raw pb into the Home formula, which double-flipped the battery term
-  // (raw pb is + when discharging on the tested firmware). See HomeyPower.md.
+  // Battery power in Homey's convention (+ charging / − discharging), matching the
+  // Battery tile. (The Home derivation below uses the AC-busbar formula and does
+  // not need the battery term — pac already nets battery flow. See HomeyPower.md.)
   const batHomeyW = bat && typeof bat.batteryPower_W === 'number'
     ? homeyBatteryPower_W(bat.batteryPower_W)
     : null;
@@ -79,26 +78,16 @@ function buildTileSummary(snapshot) {
     lines.push('  Grid     : — (no meter data in this snapshot)');
   }
 
-  // Home consumption (W) = PV + grid_signed − battery_signed
+  // Home consumption (W) = pac + grid_signed   (AC-busbar balance — see HomeyPower.md)
+  //   pac:         inverter net AC output (already nets battery flow + DC→AC conversion)
   //   grid_signed: + when importing, − when exporting
-  //   battery_signed: + when charging, − when discharging
-  // Energy balance at the house: PV in + grid in = home consumed + battery charged.
-  // Solving for home: home = PV + grid − battery (using signed values).
-  const haveAll = typeof pvPower === 'number'
-    && m && typeof m.gridPower_W === 'number'
-    && typeof batHomeyW === 'number';
-  const havePvAndGrid = typeof pvPower === 'number'
-    && m && typeof m.gridPower_W === 'number';
-
+  const pacW = inv ? inv.instantPower_W : null;
   let homeLine;
-  if (haveAll) {
-    const home = pvPower + m.gridPower_W - batHomeyW;
-    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')} − battery ${fmtSigned(batHomeyW, '', '', '')})`;
-  } else if (havePvAndGrid) {
-    const home = pvPower + m.gridPower_W;
-    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')}; no battery in derivation)`;
+  if (typeof pacW === 'number' && m && typeof m.gridPower_W === 'number') {
+    const home = Math.max(0, pacW + m.gridPower_W);
+    homeLine = `  Home     : ${home} W   (= inverter AC ${pacW} + grid ${fmtSigned(m.gridPower_W, '', '', '')})`;
   } else {
-    homeLine = '  Home     : — (need at least PV + grid for derivation)';
+    homeLine = '  Home     : — (need inverter AC power + grid for derivation)';
   }
   lines.push(homeLine);
 

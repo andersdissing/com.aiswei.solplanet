@@ -43,6 +43,10 @@ with the Homey sign conventions:
 - `grid_signed`    = + when importing, − when exporting   (`MeterData.pac`)
 - `battery_signed` = + when charging,  − when discharging  (Homey's battery convention)
 
+This app re-derives the same household load on the **AC side** as `pac + grid_signed` —
+mathematically equivalent in the lossless case, but more accurate against real DC→AC conversion
+losses and a direct match to the inverter's own *Load* reading. See §4.
+
 This app already presents Homey with the three devices it needs to compute this:
 
 | Driver | Class | Energy block | Feeds |
@@ -72,51 +76,58 @@ device**, so you can graph it and use it in Flows:
 They live on the existing **Solplanet Grid Meter** device — it already receives the full poll
 snapshot (PV + battery + meter), so no extra device or pairing step is needed.
 
-## 4. The formulas this app uses
+## 4. The formula this app uses
 
 Implemented in [`drivers/meter/device.js`](./drivers/meter/device.js) → `_updateHomeConsumption()`.
 
+The household is fed on the **AC side**, so the app derives Home from the inverter's net AC output
+plus the grid flow — an **AC-busbar balance**:
+
 **Live power (W):**
 ```
-home_power = PV_W + grid_signed_W − battery_signed_W      (clamped ≥ 0)
+home_power = pac + grid_signed      (clamped ≥ 0)
 ```
-- `PV_W` — prefer hybrid `BatteryData.ppv` (excludes battery flow); fall back to
-  `InverterData.pac` on pure-PV systems; clamp ≥ 0.
-- `grid_signed_W` = `MeterData.pac` (+ import / − export).
-- `battery_signed_W` = `homeyBatteryPower_W(pb)` — the shared, hardware-verified convention
-  (+ charging / − discharging). `0` on systems without a battery.
+- `pac` = `InverterData.pac` — the inverter's **net AC output**. On a hybrid this already nets
+  battery charge/discharge **and** DC→AC conversion loss (the exact reason the Solar tile uses the
+  PV-only `ppv` instead of `pac`). It can go negative when the inverter draws AC to charge the
+  battery from the grid; the formula handles that. No battery slice is needed.
+- `grid_signed` = `MeterData.pac` (+ import / − export).
 
 **Lifetime energy (kWh):**
 ```
-home_energy = pv_total + imported − exported − charged + discharged    (monotonic-guarded)
+home_energy = eto + imported − exported     (monotonic-guarded)
 ```
-- `pv_total` — `BatteryData.etopv` (hybrid) or `InverterData.eto` (pure-PV).
-- `imported` / `exported` — `MeterData.iet` / `MeterData.oet`.
-- `charged` / `discharged` — `BatteryData.eaci` / `BatteryData.eaco`; `0` without a battery.
+- `eto` = `InverterData.eto` — lifetime inverter AC output.
+- `imported` / `exported` = `MeterData.iet` / `MeterData.oet`.
 
-### Sign convention — the one easy mistake
+### Why AC, not the DC reconstruction
 
-The battery term **must** use Homey's convention (+ charging / − discharging), produced by
-`lib/conventions.js → homeyBatteryPower_W()`, which flips the raw Solplanet `pb` (positive when
-*discharging* on the tested firmware). Feeding the **raw** `pb` into `home = PV + grid − pb`
-double-flips the battery term and is wrong by `2 × battery_power`. The production code uses the
-shared convention; `scripts/compare.js` was reconciled to match.
+An earlier draft derived Home from PV on the DC side (`ppv + grid − battery_signed`). Validated on
+hardware (battery idle), that read **~7 % low** versus the Solplanet app's *Load* — it ignores the
+DC→AC conversion loss and understates what actually reaches the AC busbar:
+
+| Formula | Sample | vs Solplanet *Load* 1184 W |
+|---|---|---|
+| DC `ppv + grid − battery` | 1100 W | −84 W (−7 %) |
+| **AC `pac + grid`** | **1173 W** | **−11 W (~1 %)** |
+
+`pac + grid` matches the inverter's own Load to within sampling jitter and needs no battery slice,
+so it is what the app ships. `scripts/compare.js` uses the same AC formula.
 
 ## 5. Edge cases
 
-All values in W, battery in Homey convention (+ charge / − discharge).
+`pac` is the inverter's **net AC output** (PV + battery discharge − battery charge, after
+conversion); `grid` is + import / − export. All values in W.
 
-| # | Situation | PV | Grid | Battery | `home_power` | Note |
-|---|---|---|---|---|---|---|
-| 1 | Sunny, exporting surplus, battery idle | 6000 | −5000 | 0 | **1000** | Export reduces home |
-| 2 | Exporting **and** charging battery | 6000 | −2000 | +3000 | **1000** | Charging is not home load |
-| 3 | Night, importing, battery discharging | 0 | +500 | −1500 | **2000** | Discharge supplements grid |
-| 4 | Cloudy noon, importing, charging | 1500 | +2500 | +1000 | **3000** | All three contribute |
-| 5 | Pure-PV system (no battery) | 4000 | −1000 | (none → 0) | **3000** | Battery term dropped |
-| 6 | Inverter momentary negative PV | <0 → 0 | +800 | 0 | **800** | PV clamped ≥ 0 first |
-| 7 | Tiny negative from sampling jitter | 10 | −15 | 0 | **0** | `home_power` clamped ≥ 0 |
-| 8 | No meter data this poll | — | — | — | _not emitted_ | Skip; today-counters zeroed in midnight window |
-| 9 | Missing PV **or** grid this poll | — | — | — | _not emitted_ | No bogus 0 written |
+| # | Situation | `pac` | Grid | `home_power` | Note |
+|---|---|---|---|---|---|
+| 1 | Sunny, exporting surplus | 6000 | −5000 | **1000** | Export reduces home |
+| 2 | Exporting while charging | 2900 | −1400 | **1500** | Charging already lowers `pac` |
+| 3 | Night, battery discharging | 1450 | +550 | **2000** | Discharge is inside `pac` |
+| 4 | Charging from the grid | −1000 | +1500 | **500** | Negative `pac` handled |
+| 5 | Cloudy noon, importing | 1500 | +1500 | **3000** | Both contribute |
+| 6 | Tiny negative from jitter | 10 | −15 | **0** | clamped ≥ 0 |
+| 7 | No inverter **or** meter data this poll | — | — | _not emitted_ | Skip; no bogus 0 written |
 
 **`exclude_grid_exports` setting:** when ON, Homey drops `cumulativeExportedCapability` from the
 meter's energy block so sold energy is excluded from Homey's *Electricity Total*. This **does not

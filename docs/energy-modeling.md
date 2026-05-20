@@ -30,7 +30,8 @@ The user adds each separately (one Add-device per driver). The shared pair UI va
 Homey computes the **Home** tile internally but never exposes it as a capability, so it can't be
 graphed in Insights or used in Flows. As of 1.0.2 the `meter` device re-derives the same value
 and publishes it as two read-only **custom** capabilities — `home_power` (W) and `home_energy`
-(kWh) — using the energy balance `home = PV + grid_signed − battery_signed`. They are custom (not
+(kWh) — using the AC-busbar balance `home = pac + grid_signed` (the inverter's net AC output, which
+already nets battery flow and conversion loss, plus grid). They are custom (not
 root `measure_power`/`meter_power`) precisely so Homey leaves them out of energy aggregation and
 they don't double-count against the cumulative grid meter (the bug that forced the 1.0.0 `home`
 driver's removal in 1.0.1).

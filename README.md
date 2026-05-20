@@ -63,8 +63,8 @@ If your system is PV-only, only the Inverter pairing will succeed; the others wi
 | meter | | `meter_power.exported` (kWh) | `MeterData.oet` | ×0.1 |
 | meter | | `meter_power.imported_today` | `MeterData.itd` | ×0.01 |
 | meter | | `meter_power.exported_today` | `MeterData.otd` | ×0.01 |
-| meter | | `home_power` (W) | derived: `PV + grid_signed − battery_signed` | — |
-| meter | | `home_energy` (kWh) | derived: `pv_total + imp − exp − chg + dis` | — |
+| meter | | `home_power` (W) | derived: `inverter_AC + grid_signed` | — |
+| meter | | `home_energy` (kWh) | derived: `eto + imp − exp` | — |
 
 The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. The two derived `home_*` capabilities additionally surface that same household-consumption value as graphable/Flow-usable readings (they are *custom* capabilities, deliberately kept out of Homey's energy aggregation). See [`HomeyPower.md`](./HomeyPower.md) and `docs/energy-modeling.md` for the design discussion.
 
@@ -80,15 +80,15 @@ Two of the readings this app exposes look superficially similar but mean differe
 
 So a number like `-6170 W` means "we're sending 6.17 kW out to the grid right now" — that's a typical sunny-day reading on a system with surplus PV.
 
-**Home consumption** lives on the same *Grid Meter* device, as two read-only capabilities: `home_power` (label *Home consumption*, W) and `home_energy` (label *Home consumption total*, kWh). It is the **total power your house is using** right now and is **always ≥ 0**. Because the inverter does not expose it directly, it is computed from energy conservation:
+**Home consumption** lives on the same *Grid Meter* device, as two read-only capabilities: `home_power` (label *Home consumption*, W) and `home_energy` (label *Home consumption total*, kWh). It is the **total power your house is using** right now and is **always ≥ 0**. It is computed as an AC-side energy balance — the inverter's net AC output plus the grid flow:
 
 ```
-home_W  =  PV_W  +  grid_signed_W  −  battery_signed_W
+home_W  =  inverter_AC_output  +  grid_signed_W
 ```
 
-with `grid_signed` = +import / −export and `battery_signed` = +charging / −discharging. The cumulative `home_energy` capability accumulates the same balance applied to the lifetime kWh counters.
+with `grid_signed` = +import / −export. On a hybrid the inverter's AC output already nets battery charge/discharge and conversion losses, so this matches the inverter's own *Load* reading to within ~1% (it tracks the Solplanet mobile app's *Load* figure). The cumulative `home_energy` capability accumulates the same balance over the lifetime counters.
 
-This is the same derivation Homey's Energy tab uses for its **Home** tile — but exposing it as device capabilities lets you graph it in Insights and use it in Flows, which the native tile alone does not. On a real run, the reading matches the Solplanet mobile app's *Load* figure within sampling jitter (a percent or so of gross flow). These are *custom* capabilities, kept out of Homey's energy aggregation so they don't double-count against the grid meter — see [`HomeyPower.md`](./HomeyPower.md) for the full design.
+Exposing this as device capabilities lets you graph it in Insights and use it in Flows, which Homey's native **Home** tile alone does not. These are *custom* capabilities, kept out of Homey's energy aggregation so they don't double-count against the grid meter — see [`HomeyPower.md`](./HomeyPower.md) for the full design (including why an earlier DC-side formula read ~7% low).
 
 **Why have both?** Because they answer different questions. *Grid power* tells you how your house is interacting with the utility right now (importing or selling). *Home consumption* tells you how much your house is actually using, regardless of whether that energy came from the panels, from the grid, or out of the battery.
 
