@@ -440,7 +440,8 @@
       "getable": true,
       "setable": false,
       "insights": true,
-      "uiComponent": "sensor"
+      "uiComponent": "sensor",
+      "icon": "/assets/home_energy.svg"
     },
     "home_power": {
       "type": "number",
@@ -456,7 +457,8 @@
       "getable": true,
       "setable": false,
       "insights": true,
-      "uiComponent": "sensor"
+      "uiComponent": "sensor",
+      "icon": "/assets/home_power.svg"
     }
   }
 }
