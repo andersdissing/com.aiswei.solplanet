@@ -55,7 +55,7 @@ function buildTileSummary(snapshot) {
 
   // Battery power in Homey's convention (+ charging / − discharging), matching the
   // Battery tile. (The Home derivation below uses the AC-busbar formula and does
-  // not need the battery term — pac already nets battery flow. See HomeyPower.md.)
+  // not need the battery term — pac already nets battery flow. See docs/energy-modeling.md.)
   const batHomeyW = bat && typeof bat.batteryPower_W === 'number'
     ? homeyBatteryPower_W(bat.batteryPower_W)
     : null;
@@ -78,7 +78,7 @@ function buildTileSummary(snapshot) {
     lines.push('  Grid     : — (no meter data in this snapshot)');
   }
 
-  // Home consumption (W) = pac + grid_signed   (AC-busbar balance — see HomeyPower.md)
+  // Home consumption (W) = pac + grid_signed   (AC-busbar balance — see docs/energy-modeling.md)
   //   pac:         inverter net AC output (already nets battery flow + DC→AC conversion)
   //   grid_signed: + when importing, − when exporting
   const pacW = inv ? inv.instantPower_W : null;

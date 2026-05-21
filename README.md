@@ -7,7 +7,7 @@ A Homey app for **Solplanet / AISWEI hybrid solar inverters** that surfaces sola
 - **Solar tile** — current PV power and lifetime / today production
 - **Battery tile** — state-of-charge, signed power flow (charging / discharging), cumulative charged & discharged energy
 - **Grid tile** — whole-home grid power, cumulative imported & exported energy
-- **Home tile** — automatically populated by Homey as the residual of the cumulative grid meter minus all known consumers
+- **Home consumption** — exposed as `home_power` (live W) and `home_energy` (lifetime kWh) on the Grid Meter device, derived from the inverter's AC output plus grid flow (`pac + grid`); graphable in Insights and usable in Flows. (Homey's Energy-tab *Home* tile is a separate, Homey-computed residual — see [`docs/energy-modeling.md`](./docs/energy-modeling.md).)
 
 Pricing/tariff is delegated to whichever tariff app you already use (Tibber, Nordpool, etc.). This app emits clean kWh meters; Homey does the cost math.
 
@@ -17,7 +17,7 @@ v1.0 has **no custom flow cards** — only built-in Homey energy capabilities. F
 
 - Homey Pro `>= 12.0.0` (SDK 3)
 - Solplanet / AISWEI hybrid inverters reachable on the same LAN as Homey
-- Tested on: _(fill in once on-hardware validation runs — see Phase 6 in [`docs/todo.md`](./docs/todo.md))_
+- Tested on: Solplanet **ASW08kH-T2** hybrid inverter (PV + battery + grid meter) on Homey Pro
 
 ## Install
 
@@ -66,7 +66,7 @@ If your system is PV-only, only the Inverter pairing will succeed; the others wi
 | meter | | `home_power` (W) | derived: `inverter_AC + grid_signed` | — |
 | meter | | `home_energy` (kWh) | derived: `eto + imp − exp` | — |
 
-The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. The two derived `home_*` capabilities additionally surface that same household-consumption value as graphable/Flow-usable readings (they are *custom* capabilities, deliberately kept out of Homey's energy aggregation). See [`HomeyPower.md`](./HomeyPower.md) and `docs/energy-modeling.md` for the design discussion.
+The `meter` driver carries `energy.cumulative: true` and the `cumulativeImportedCapability` / `cumulativeExportedCapability` fields — this is what makes Homey's "Home" residual tile populate. The two derived `home_*` capabilities additionally surface that same household-consumption value as graphable/Flow-usable readings (they are *custom* capabilities, deliberately kept out of Homey's energy aggregation). See [`docs/energy-modeling.md`](./docs/energy-modeling.md) for the design discussion.
 
 ## Reading the values: Grid power vs Home consumption
 
@@ -88,7 +88,7 @@ home_W  =  inverter_AC_output  +  grid_signed_W
 
 with `grid_signed` = +import / −export. On a hybrid the inverter's AC output already nets battery charge/discharge and conversion losses, so this matches the inverter's own *Load* reading to within ~1% (it tracks the Solplanet mobile app's *Load* figure). The cumulative `home_energy` capability accumulates the same balance over the lifetime counters.
 
-Exposing this as device capabilities lets you graph it in Insights and use it in Flows, which Homey's native **Home** tile alone does not. These are *custom* capabilities, kept out of Homey's energy aggregation so they don't double-count against the grid meter — see [`HomeyPower.md`](./HomeyPower.md) for the full design (including why an earlier DC-side formula read ~7% low).
+Exposing this as device capabilities lets you graph it in Insights and use it in Flows, which Homey's native **Home** tile alone does not. These are *custom* capabilities, kept out of Homey's energy aggregation so they don't double-count against the grid meter — see [`docs/energy-modeling.md`](./docs/energy-modeling.md) for the full design (including why an earlier DC-side formula read ~7% low).
 
 **Why have both?** Because they answer different questions. *Grid power* tells you how your house is interacting with the utility right now (importing or selling). *Home consumption* tells you how much your house is actually using, regardless of whether that energy came from the panels, from the grid, or out of the battery.
 

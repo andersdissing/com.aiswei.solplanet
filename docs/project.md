@@ -21,7 +21,7 @@ Three drivers sharing one HTTP client, one API layer, one polling coordinator, a
 | `battery` | `battery` | `homeBattery: true`, `meterPowerImportedCapability: meter_power.charged`, `meterPowerExportedCapability: meter_power.discharged` | **Battery** |
 | `meter` | `sensor` | `cumulative: true`, `cumulativeImportedCapability: meter_power.imported`, `cumulativeExportedCapability: meter_power.exported` | **Grid** + (residual) **Home** |
 
-The `cumulative: true` flag on the `meter` driver is the single line of config that makes Homey's "Home" residual tile populate. **No custom capabilities** — `measure_battery` (built-in) replaces the reference's custom `battery_soc`. (A standalone "Solplanet Home Consumption" driver shipped briefly in 1.0.0 and was dropped in 1.0.1; the Energy-tab residual is sufficient and avoids double-counting against the cumulative meter.)
+The `cumulative: true` flag on the `meter` driver is the single line of config that makes Homey's "Home" residual tile populate. The reference's custom `battery_soc` is replaced by the built-in `measure_battery`; the only custom capabilities are the derived `home_power` / `home_energy` on the meter device (added 1.0.2 — see [`energy-modeling.md`](./energy-modeling.md)). (A standalone "Solplanet Home Consumption" driver shipped briefly in 1.0.0 and was dropped in 1.0.1; the Energy-tab residual is sufficient and avoids double-counting against the cumulative meter.)
 
 ## Reference-app modeling bug we corrected
 
@@ -60,7 +60,7 @@ Ref: https://apps.developer.homey.app/wireless/energy/cumulative-meter
 | `meter_power.exported` (kWh) | `MeterData.oet` | ×0.1 | Monotonic |
 | `meter_power.imported_today` | `MeterData.itd` | ×0.01 | Daily |
 | `meter_power.exported_today` | `MeterData.otd` | ×0.01 | Daily |
-| `home_power` (W) | derived | — | Custom cap. `pac + grid_signed` (AC busbar), clamp ≥ 0. Out of energy aggregation. See [HomeyPower.md](../HomeyPower.md) |
+| `home_power` (W) | derived | — | Custom cap. `pac + grid_signed` (AC busbar), clamp ≥ 0. Out of energy aggregation. See [energy-modeling.md](./energy-modeling.md) |
 | `home_energy` (kWh) | derived | — | Custom cap. `eto + imp − exp`, monotonic. Out of energy aggregation |
 
 ## Polling rules

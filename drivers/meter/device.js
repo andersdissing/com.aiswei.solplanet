@@ -83,7 +83,7 @@ class MeterDeviceImpl extends InverterDevice {
     // Derived whole-home consumption — the Energy-tab "Home" equivalent, exposed
     // as custom capabilities so it stays OUT of Homey's energy aggregation (root
     // measure_power/meter_power would be double-counted against this cumulative
-    // meter). See HomeyPower.md for the formula and edge cases.
+    // meter). See docs/energy-modeling.md for the formula and edge cases.
     await this._updateHomeConsumption(snapshot.inverter, m);
   }
 
@@ -95,7 +95,7 @@ class MeterDeviceImpl extends InverterDevice {
   //   home_energy = eto + imported − exported              (lifetime, kWh, monotonic)
   //   grid_signed: + import / − export   (MeterData.pac)
   // Deriving from PV DC (ppv) instead understated the value by the conversion
-  // loss (~7%); see HomeyPower.md.
+  // loss (~7%); see docs/energy-modeling.md.
   async _updateHomeConsumption(inv, m) {
     const pac = inv ? inv.instantPower_W : null; // net AC output (signed)
     const gridW = m.gridPower_W;                 // + import / − export

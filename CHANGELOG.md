@@ -5,14 +5,14 @@ All notable changes to `com.aiswei.solplanet` are recorded here. Format follows 
 ## [1.0.2] — Unreleased
 
 ### Added
-- **Home consumption** surfaced as two read-only capabilities on the Grid Meter device: `home_power` (W) and `home_energy` (kWh), derived from the AC-busbar balance `home = pac + grid_signed` (the inverter's net AC output — which already nets battery flow and DC→AC conversion loss — plus grid). Matches the inverter's own *Load* reading to ~1% on hardware. They are *custom* capabilities, deliberately excluded from Homey's energy aggregation so they don't double-count against the cumulative grid meter. This lets you graph household consumption in Insights and use it in Flows — which Homey's native Home tile alone does not allow. See [`HomeyPower.md`](./HomeyPower.md).
+- **Home consumption** surfaced as two read-only capabilities on the Grid Meter device: `home_power` (W) and `home_energy` (kWh), derived from the AC-busbar balance `home = pac + grid_signed` (the inverter's net AC output — which already nets battery flow and DC→AC conversion loss — plus grid). Matches the inverter's own *Load* reading to ~1% on hardware. They are *custom* capabilities, deliberately excluded from Homey's energy aggregation so they don't double-count against the cumulative grid meter. This lets you graph household consumption in Insights and use it in Flows — which Homey's native Home tile alone does not allow. See [`docs/energy-modeling.md`](./docs/energy-modeling.md).
 - Migration: meters paired before 1.0.2 gain the new capabilities automatically on update (`addCapability` in `onInit`, before the coordinator subscribes).
 
 ### Fixed
 - `scripts/compare.js` now derives Home with the same AC-busbar formula (`pac + grid`) as the device, and shows battery power in Homey's signed convention via `homeyBatteryPower_W()` (it previously displayed the raw `pb`).
 
 ### Docs
-- New [`HomeyPower.md`](./HomeyPower.md) — how Homey calculates "Home", the app's explicit value, formulas, sign conventions, and the full edge-case table.
+- Home-calc deep-dive added to [`docs/energy-modeling.md`](./docs/energy-modeling.md) — how Homey calculates "Home", the app's explicit value, formulas, sign conventions, and the full edge-case table.
 - Fixed stale `README.md` "Reading the values" section that still referenced the `Solplanet Home Consumption` device removed in 1.0.1.
 
 ## [1.0.0] — Unreleased
