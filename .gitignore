@@ -7,6 +7,10 @@ node_modules/
 # Data miner output (raw inverter snapshots)
 debug/
 
+# Inverter snapshot files (already under debug/, but excluded anywhere they land)
+snapshot-*.json
+snapshots.ndjson
+
 # Local secrets — inverter IP/serial for the data miner
 .env
 .env*
