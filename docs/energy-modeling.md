@@ -11,7 +11,7 @@ Homey's Energy tab has four tiles: **Solar**, **Home**, **Battery**, **Grid**. E
 | Solar | Devices with `class: solarpanel` |
 | Battery | Devices with `class: battery` and `energy.homeBattery: true` |
 | Grid | Devices with `energy.cumulative: true` (typically `class: sensor`) |
-| Home | **Derived**: cumulative meter total minus all known consumers. There is no "Home" device — Homey computes it. |
+| Home | **Derived**: cumulative meter total minus all known consumers. Homey computes the tile itself; the app additionally re-derives the same value as `home_power` / `home_energy` capabilities on the meter device (see below). |
 
 ## Mapping a hybrid inverter to those tiles
 
@@ -24,6 +24,93 @@ A Solplanet hybrid inverter physically integrates PV, battery and grid metering,
 | `meter` | `sensor` | `cumulative: true`, `cumulativeImportedCapability: meter_power.imported`, `cumulativeExportedCapability: meter_power.exported` | Grid + Home |
 
 The user adds each separately (one Add-device per driver). The shared pair UI validates the connection and only lists the device if the corresponding subsystem is actually reported. Home consumption is a derived value — Homey's Energy tab "Home" tile computes it as the cumulative meter minus all known consumers; we don't surface it as its own device because that would double-count against the cumulative meter. (A standalone `home` driver shipped briefly in 1.0.0 for this purpose; dropped in 1.0.1.)
+
+## Explicit Home consumption value (`home_power` / `home_energy`)
+
+Homey computes the **Home** tile internally but never exposes it as a capability — you can't graph
+it in Insights, read it from the API, or use it in a Flow without hand-building an Advanced Virtual
+Device. As of 1.0.2 the `meter` device re-derives the same value and publishes it as two read-only
+**custom** capabilities on the existing Grid Meter device (which already receives the full PV +
+battery + meter poll snapshot, so no extra device or pairing step is needed):
+
+| Capability | Unit | Meaning |
+|---|---|---|
+| `home_power` | W | Live whole-home consumption (always ≥ 0) |
+| `home_energy` | kWh | Lifetime whole-home consumption (monotonic) |
+
+### The formula
+
+Implemented in `drivers/meter/device.js` → `_updateHomeConsumption()`. The household is fed on the
+**AC side**, so Home is an **AC-busbar balance** — the inverter's net AC output plus the grid flow:
+
+```
+home_power  = pac + grid_signed              (clamped ≥ 0)
+home_energy = eto + imported − exported      (monotonic-guarded)
+```
+
+- `pac` = `InverterData.pac` — the inverter's **net AC output**. On a hybrid this already nets
+  battery charge/discharge **and** DC→AC conversion loss (the exact reason the Solar tile uses the
+  PV-only `ppv`, not `pac`). It can go negative when the inverter draws AC to charge the battery
+  from the grid; the formula handles that. No battery slice is needed.
+- `grid_signed` = `MeterData.pac` (+ import / − export).
+- `eto` / `imported` / `exported` = `InverterData.eto` (lifetime AC out) / `MeterData.iet` / `MeterData.oet`.
+
+### Why AC, not a DC reconstruction
+
+An earlier draft used the DC balance `ppv + grid − battery_signed`. On hardware (battery idle) that
+read **~7 % low** vs the Solplanet app's *Load* — it ignores DC→AC conversion loss:
+
+| Formula | Sample | vs Solplanet *Load* 1184 W |
+|---|---|---|
+| DC `ppv + grid − battery` | 1100 W | −84 W (−7 %) |
+| **AC `pac + grid`** | **1173 W** | **−11 W (~1 %)** |
+
+`pac + grid` matched within sampling jitter across battery idle / discharge-to-load /
+discharge-to-grid (5+ kW) states, so it's what ships. `scripts/compare.js` and
+`scripts/testconnection.js` use the same formula.
+
+### Edge cases
+
+`pac` is the net AC output (PV + battery discharge − battery charge, after conversion); `grid` is
++ import / − export. All values in W.
+
+| # | Situation | `pac` | Grid | `home_power` | Note |
+|---|---|---|---|---|---|
+| 1 | Sunny, exporting surplus | 6000 | −5000 | **1000** | Export reduces home |
+| 2 | Exporting while charging | 2900 | −1400 | **1500** | Charging already lowers `pac` |
+| 3 | Night, battery discharging | 1450 | +550 | **2000** | Discharge is inside `pac` |
+| 4 | Charging from the grid | −1000 | +1500 | **500** | Negative `pac` handled |
+| 5 | Cloudy noon, importing | 1500 | +1500 | **3000** | Both contribute |
+| 6 | Tiny negative from jitter | 10 | −15 | **0** | clamped ≥ 0 |
+| 7 | No inverter **or** meter data this poll | — | — | _not emitted_ | Skip; no bogus 0 |
+
+**`exclude_grid_exports` setting:** when ON, Homey drops `cumulativeExportedCapability` from the
+meter's energy block so sold energy is excluded from Homey's *Electricity Total*. This does **not**
+affect `home_power` / `home_energy` — they always read the real exported counter (`MeterData.oet`).
+(It does, however, skew Homey's *native* Home tile while exporting — one more reason to expose our
+own value.)
+
+### Why custom capabilities (not root `measure_power` / `meter_power`)
+
+Homey aggregates every device's **root** `measure_power` / `meter_power` into its energy totals. A
+standalone Home device using those root capabilities shipped in 1.0.0 and was **removed in 1.0.1**
+because Homey counted it as a consumer and **double-counted** it against the cumulative grid meter.
+`home_power` / `home_energy` are **custom** capabilities, not referenced in any `energy` block, so
+Homey leaves them out of aggregation entirely — the native tiles are unaffected.
+
+### Migration
+
+Meters paired before 1.0.2 gain the caps automatically: `drivers/meter/device.js` calls
+`addCapability` in `onInit()` (before the coordinator subscribes) when they're missing — no manual
+Repair needed.
+
+### Note on the native Energy-tab Home tile
+
+An app **cannot** write the Energy-tab **Home** tile directly — Homey derives it. On firmware where
+the inverter's lifetime battery counters (`eaci` / `eaco`) read 0, Homey's Battery (and therefore
+Home) accounting can't balance and the tile may render "—". The accurate figure always lives on
+`home_power` / `home_energy`. Closing the native tile would require synthesizing a cumulative
+battery counter — see the pinned task in [`todo.md`](./todo.md).
 
 ## The reference-app modeling bug we fixed
 

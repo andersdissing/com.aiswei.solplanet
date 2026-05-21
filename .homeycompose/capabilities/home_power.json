@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Home consumption",
+    "da": "Hjemmeforbrug"
+  },
+  "units": {
+    "en": "W"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "icon": "/assets/home_power.svg"
+}

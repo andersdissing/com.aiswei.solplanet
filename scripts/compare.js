@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { homeyBatteryPower_W } = require('../lib/conventions');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const DEBUG_DIR = path.join(PROJECT_ROOT, 'debug');
@@ -52,6 +53,13 @@ function buildTileSummary(snapshot) {
   const pvToday = bat && bat.pvEnergyTodayKWh !== null ? bat.pvEnergyTodayKWh
     : inv ? inv.energyTodayKWh : null;
 
+  // Battery power in Homey's convention (+ charging / − discharging), matching the
+  // Battery tile. (The Home derivation below uses the AC-busbar formula and does
+  // not need the battery term — pac already nets battery flow. See docs/energy-modeling.md.)
+  const batHomeyW = bat && typeof bat.batteryPower_W === 'number'
+    ? homeyBatteryPower_W(bat.batteryPower_W)
+    : null;
+
   const lines = [];
   lines.push('Energy tab — values your Homey app should show right now:');
   lines.push('-'.repeat(72));
@@ -59,7 +67,7 @@ function buildTileSummary(snapshot) {
   lines.push(`  Solar    : ${fmt(pvPower, ' W')}   (lifetime ${fmt(pvTotal, ' kWh')}, today ${fmt(pvToday, ' kWh')})`);
 
   if (bat) {
-    lines.push(`  Battery  : ${fmt(bat.soc_pct, '%')}   power ${fmtSigned(bat.batteryPower_W, ' W', 'charging', 'discharging')}   (lifetime ↓${fmt(bat.chargedTotalKWh)} / ↑${fmt(bat.dischargedTotalKWh)} kWh)`);
+    lines.push(`  Battery  : ${fmt(bat.soc_pct, '%')}   power ${fmtSigned(batHomeyW, ' W', 'charging', 'discharging')}   (lifetime ↓${fmt(bat.chargedTotalKWh)} / ↑${fmt(bat.dischargedTotalKWh)} kWh)`);
   } else {
     lines.push('  Battery  : — (no battery data in this snapshot)');
   }
@@ -70,26 +78,16 @@ function buildTileSummary(snapshot) {
     lines.push('  Grid     : — (no meter data in this snapshot)');
   }
 
-  // Home consumption (W) = PV + grid_signed − battery_signed
+  // Home consumption (W) = pac + grid_signed   (AC-busbar balance — see docs/energy-modeling.md)
+  //   pac:         inverter net AC output (already nets battery flow + DC→AC conversion)
   //   grid_signed: + when importing, − when exporting
-  //   battery_signed: + when charging, − when discharging
-  // Energy balance at the house: PV in + grid in = home consumed + battery charged.
-  // Solving for home: home = PV + grid − battery (using signed values).
-  const haveAll = typeof pvPower === 'number'
-    && m && typeof m.gridPower_W === 'number'
-    && bat && typeof bat.batteryPower_W === 'number';
-  const havePvAndGrid = typeof pvPower === 'number'
-    && m && typeof m.gridPower_W === 'number';
-
+  const pacW = inv ? inv.instantPower_W : null;
   let homeLine;
-  if (haveAll) {
-    const home = pvPower + m.gridPower_W - bat.batteryPower_W;
-    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')} − battery ${fmtSigned(bat.batteryPower_W, '', '', '')})`;
-  } else if (havePvAndGrid) {
-    const home = pvPower + m.gridPower_W;
-    homeLine = `  Home     : ${home} W   (= PV ${pvPower} + grid ${fmtSigned(m.gridPower_W, '', '', '')}; no battery in derivation)`;
+  if (typeof pacW === 'number' && m && typeof m.gridPower_W === 'number') {
+    const home = Math.max(0, pacW + m.gridPower_W);
+    homeLine = `  Home     : ${home} W   (= inverter AC ${pacW} + grid ${fmtSigned(m.gridPower_W, '', '', '')})`;
   } else {
-    homeLine = '  Home     : — (need at least PV + grid for derivation)';
+    homeLine = '  Home     : — (need inverter AC power + grid for derivation)';
   }
   lines.push(homeLine);
 
@@ -97,7 +95,7 @@ function buildTileSummary(snapshot) {
   lines.push('If a tile in the Homey app shows a different number, the bug is most');
   lines.push('likely a sign or scale-factor mismatch in the corresponding device.js');
   lines.push('or in lib/fields.js. Battery sign: see BATTERY_POWER_SIGN in');
-  lines.push('drivers/battery/device.js — flip from +1 to -1 if charge/discharge');
+  lines.push('lib/conventions.js — flip from +1 to -1 if charge/discharge');
   lines.push('reports the wrong sign on the Battery tile.');
   return lines.join('\n');
 }

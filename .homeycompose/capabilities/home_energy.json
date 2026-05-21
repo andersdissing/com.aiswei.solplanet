@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Home consumption total",
+    "da": "Hjemmeforbrug i alt"
+  },
+  "units": {
+    "en": "kWh"
+  },
+  "decimals": 2,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "uiComponent": "sensor",
+  "icon": "/assets/home_energy.svg"
+}

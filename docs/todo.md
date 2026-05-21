@@ -126,6 +126,30 @@ Goal: ready for publication on the Homey App Store.
 
 ---
 
+## Phase 11 — v1.0.2 / Home consumption value
+
+Feature `feature/HomeyPower` · issue [#6](https://github.com/andersdissing/com.aiswei.solplanet/issues/6). See [`energy-modeling.md`](energy-modeling.md).
+
+- [x] Surface Homey's derived "Home" as graphable / Flow-usable capabilities — added custom `home_power` (W) + `home_energy` (kWh) on the `meter` device, computed via the AC-busbar balance `pac + grid_signed` (instant) and `eto + imp − exp` (lifetime); clamped ≥ 0 / monotonic-guarded. Custom caps deliberately kept out of Homey's energy aggregation to avoid the 1.0.1 double-count. Hardware-confirmed against the Solplanet app *Load* (~1%); an earlier DC formula (`ppv + grid − battery`) read ~7% low and was replaced.
+- [x] `onInit` migration — `addCapability` adds the two caps to already-paired meters on update (runs before the coordinator subscribes).
+- [x] Reconcile `scripts/compare.js` battery sign — it fed raw `pb` into the Home formula where the Homey-signed value was expected; now uses `homeyBatteryPower_W()`.
+- [x] Docs — Home-calc deep-dive folded into `docs/energy-modeling.md`; fixed stale `README.md` "Reading the values" (referenced the removed Home Consumption device); updated `docs/energy-modeling.md`, `docs/project.md`, `CHANGELOG.md`. Version → 1.0.2.
+- [x] `npx homey app validate --level publish` passes.
+- [x] Hardware-validated on Solv2 via `homey app install` — `home_power`/`home_energy` track the Solplanet app's *Load* within ~1% across battery idle / discharge-to-load / discharge-to-grid states (confirmed 2026-05-21 via `scripts/testconnection.js` + data-miner). Custom caps confirmed out of Homey's energy aggregation (meter energy block contains no `home_*`).
+- [x] Add an icon to the `home_power` ("Home consumption") and `home_energy` ("Home consumption total") custom capabilities — line-art house glyphs (bolt = live power, ascending bars = cumulative), approved in-browser via `debug/preview-icons.html`. SVGs at `assets/home_power.svg` / `assets/home_energy.svg`, referenced via the `icon` field in each `.homeycompose/capabilities/*.json`. Validates clean at publish level.
+- [ ] **(Pinned / deferred)** Synthesize a cumulative battery energy counter for the `battery` driver so Homey's Battery + native Home accounting work.
+  - **Problem:** the inverter's lifetime battery counters `eaci` (charged) / `eaco` (discharged) read **0** on this firmware (verified 2026-05-21 — `eaci=0, eaco=0` in the same poll where `ebi=16, ebo=94`). The `homeBattery` energy block maps `meterPowerImportedCapability → meter_power.charged ← eaci` and `meterPowerExportedCapability → meter_power.discharged ← eaco`, so Homey sees **0 kWh** battery flow → the Battery tile shows "0 Wh" and the native Energy-tab "Home" residual can't balance (renders "—"; confirmed in the user's screenshot, EV/Solar/Grid all populated, Battery 0 Wh while charging at 3.4 kW).
+  - **Approach:** drive the energy-block capabilities from a self-maintained accumulator built on the *working* daily counters `ebi`/`ebo` (parsed as `chargedTodayKWh`/`dischargedTodayKWh`, scale ×0.1):
+    - Persist `{ lifetimeCharged, lifetimeDischarged, lastChargedToday, lastDischargedToday }` in the device **store** (`getStoreValue`/`setStoreValue`).
+    - Each snapshot: `delta = today >= lastToday ? today − lastToday : today` (the `else` branch catches the midnight reset where the daily counter drops back toward 0); `lifetime += delta`; update `lastToday`; persist; `setMonotonicCapability('meter_power.charged' | '.discharged', lifetime)`.
+    - Seed `lifetime*` on first run from the current capability value (0) or a stored baseline.
+  - **Edge cases:** app restart (store persists); poll missed across midnight (minor undercount of that day's tail — acceptable, or track a running daily max to mitigate); partial first day; scale (`ebi/ebo` are tenths → ×0.1); the one-time 0 → real-lifetime jump on already-paired devices (allowed by the monotonic guard since it's an increase).
+  - **Acceptance:** Homey Battery tile shows non-zero charged/discharged kWh tracking the inverter's daily `ebi`/`ebo`; native Energy-tab Battery daily reflects real flow. Validate with the data-miner across a full day **and** a midnight rollover.
+  - **Caveats / scope:** an app cannot write the Energy-tab **Home** tile directly — this only gives Homey the data to compute its *own* residual. With `exclude_grid_exports` ON the native Home may still be inaccurate on heavy grid-export days (battery-to-grid discharge isn't seen as export). The exact household figure always stays on `home_power`/`home_energy`. Touches the shipped `battery` driver — plan migration for already-paired devices.
+  - **Refs:** `lib/fields.js` (`parseBatteryData`: `ebi/ebo/eaci/eaco`), `drivers/battery/{device.js,driver.compose.json}`, `docs/energy-modeling.md`, issue [#6](https://github.com/andersdissing/com.aiswei.solplanet/issues/6).
+
+---
+
 ## Decisions to confirm during implementation (non-blocking)
 
 - [x] Author / email for manifest — set as `Anders Dissing <ameq@ameq.dk>` in `.homeycompose/app.json`.
