@@ -26,5 +26,8 @@
   },
   "bugs": {
     "url": "https://github.com/andersdissing/com.aiswei.solplanet/issues"
+  },
+  "dependencies": {
+    "homey-api": "^3.19.0"
   }
 }

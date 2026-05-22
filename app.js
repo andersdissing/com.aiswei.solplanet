@@ -1,8 +1,9 @@
 'use strict';
 
 const Homey = require('homey');
+const { HomeyAPI } = require('homey-api');
 
-const IMPORT_CAP_SUFFIX = ':meter_power.imported';
+const IMPORT_CAP = 'meter_power.imported';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 class SolplanetApp extends Homey.App {
@@ -11,28 +12,36 @@ class SolplanetApp extends Homey.App {
     this.log('Solplanet app has been initialized');
   }
 
-  // Widget data source: daily grid-import (kWh) for the last 30 days, derived
-  // from the meter device's cumulative `meter_power.imported` Insights log.
-  // Returns { unit, days: [{ date: 'YYYY-MM-DD', kWh }], status }.
+  async _getApi() {
+    if (!this._api) {
+      this._api = await HomeyAPI.createAppAPI({ homey: this.homey });
+    }
+    return this._api;
+  }
+
+  // Widget data source: daily grid-import (kWh) for the last 30 days, read from
+  // the meter device's cumulative `meter_power.imported` Insights log via the
+  // Homey Web API (homey-api — the app SDK's own insights manager only exposes
+  // app-created logs, not device-capability logs). Returns
+  // { unit, days: [{ date: 'YYYY-MM-DD', kWh }], status }.
   async getEnergyImportSeries() {
     const out = { unit: 'kWh', days: [], status: 'ok' };
     try {
-      const insights = this.homey.insights;
-      if (!insights || typeof insights.getLogs !== 'function') {
-        out.status = 'no-insights-manager';
+      const api = await this._getApi();
+
+      const devices = await api.devices.getDevices();
+      const all = Object.values(devices || {});
+      const meter = all.find((d) => /aiswei/i.test(String(d.driverId || '')) && /meter/i.test(String(d.driverId || '')))
+        || all.find((d) => Array.isArray(d.capabilities)
+          && d.capabilities.includes(IMPORT_CAP)
+          && /meter/i.test(String(d.driverId || '')));
+      if (!meter) {
+        out.status = `no-meter-device [n=${all.length}]`;
         return out;
       }
 
-      const logs = await insights.getLogs();
-      const list = Array.isArray(logs) ? logs : Object.values(logs || {});
-      const log = list.find((l) => String((l && l.id) || '').endsWith(IMPORT_CAP_SUFFIX));
-      if (!log) {
-        out.status = 'no-import-log';
-        return out;
-      }
-
-      const logObj = await insights.getLog(log.id);
-      const entries = await logObj.getEntries({ resolution: 'last31Days' });
+      const logId = `homey:device:${meter.id}:${IMPORT_CAP}`;
+      const entries = await api.insights.getLogEntries({ id: logId, resolution: 'last31Days' });
       const values = (entries && (entries.values || entries.entries)) || [];
 
       out.days = this._dailyImportFromCumulative(values);
@@ -47,26 +56,22 @@ class SolplanetApp extends Homey.App {
   // Reduce cumulative kWh samples ({ t, v }) into per-day import (today's
   // end-of-day total minus the previous day's), for the last 30 days.
   _dailyImportFromCumulative(values) {
-    // Last non-null cumulative reading per calendar day (UTC date key).
     const endOfDay = new Map();
     for (const e of values) {
       const v = e && (e.v !== undefined ? e.v : e.value);
       const t = e && (e.t !== undefined ? e.t : e.date);
       if (v === null || v === undefined || !t) continue;
       const key = new Date(t).toISOString().slice(0, 10);
-      endOfDay.set(key, v); // values are time-ordered, so last write wins = end of day
+      endOfDay.set(key, v); // values are time-ordered → last write per day = end of day
     }
 
     const keys = [...endOfDay.keys()].sort();
     const days = [];
     for (let i = 1; i < keys.length; i++) {
-      const prev = endOfDay.get(keys[i - 1]);
-      const cur = endOfDay.get(keys[i]);
-      const delta = cur - prev;
+      const delta = endOfDay.get(keys[i]) - endOfDay.get(keys[i - 1]);
       days.push({ date: keys[i], kWh: Math.max(0, Math.round(delta * 100) / 100) });
     }
 
-    // Keep the trailing 30 days.
     const cutoff = Date.now() - 30 * DAY_MS;
     return days.filter((d) => new Date(d.date).getTime() >= cutoff).slice(-30);
   }
