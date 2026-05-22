@@ -1,0 +1,14 @@
+{
+  "name": {
+    "en": "Energy import"
+  },
+  "height": 240,
+  "transparent": false,
+  "settings": [],
+  "api": {
+    "getImport": {
+      "method": "GET",
+      "path": "/"
+    }
+  }
+}

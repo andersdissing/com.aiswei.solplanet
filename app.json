@@ -1,8 +1,8 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.aiswei.solplanet",
-  "version": "1.0.2",
-  "compatibility": ">=12.0.0",
+  "version": "1.1.0",
+  "compatibility": ">=12.1.0",
   "sdk": 3,
   "platforms": [
     "local"
@@ -425,6 +425,23 @@
       ]
     }
   ],
+  "widgets": {
+    "energy-import": {
+      "name": {
+        "en": "Energy import"
+      },
+      "height": 240,
+      "transparent": false,
+      "settings": [],
+      "api": {
+        "getImport": {
+          "method": "GET",
+          "path": "/"
+        }
+      },
+      "id": "energy-import"
+    }
+  },
   "capabilities": {
     "home_energy": {
       "type": "number",

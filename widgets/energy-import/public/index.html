@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body { margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; color: #1b1b1b; }
+    .wrap { padding: 12px 14px 8px; }
+    .title { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .title .bolt { color: #F6405F; }
+    .sub { font-size: 11px; color: #777; margin-bottom: 4px; }
+    .msg { font-size: 12px; color: #888; padding: 28px 0; text-align: center; }
+    svg { display: block; width: 100%; height: auto; }
+    .axis { fill: #999; font-size: 9px; }
+    .grid { stroke: #ececec; stroke-width: 1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title"><span class="bolt">⚡</span><span>Energy import</span></div>
+    <div id="sub" class="sub"></div>
+    <div id="chart"></div>
+  </div>
+
+  <script type="text/javascript">
+    function fmt(n) { return (Math.round(n * 10) / 10).toLocaleString(); }
+
+    function niceMax(v) {
+      if (v <= 0) return 1;
+      const pow = Math.pow(10, Math.floor(Math.log10(v)));
+      const n = v / pow;
+      const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+      return step * pow;
+    }
+
+    function shortDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    }
+
+    function message(text) {
+      document.getElementById('chart').innerHTML =
+        '<div class="msg">' + text + '</div>';
+    }
+
+    function render(data) {
+      const days = (data && data.days) || [];
+      const sub = document.getElementById('sub');
+
+      if (data && data.status && data.status !== 'ok' && days.length === 0) {
+        sub.textContent = '';
+        message('No import data yet (' + data.status + ').');
+        return;
+      }
+      if (days.length < 2) {
+        sub.textContent = '';
+        message('Collecting data — needs at least two days.');
+        return;
+      }
+
+      const total = days.reduce((s, d) => s + d.kWh, 0);
+      sub.textContent = 'Grid import · last ' + days.length + ' days · ' + fmt(total) + ' kWh total';
+
+      const W = 600, H = 200;
+      const L = 38, R = 10, T = 10, B = 26;
+      const pw = W - L - R, ph = H - T - B;
+      const n = days.length;
+      const ymax = niceMax(Math.max.apply(null, days.map((d) => d.kWh)));
+
+      const x = (i) => L + (n === 1 ? pw / 2 : (i * pw) / (n - 1));
+      const y = (v) => T + ph - (v / ymax) * ph;
+
+      const pts = days.map((d, i) => [x(i), y(d.kWh)]);
+      const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+      const area = 'M' + x(0).toFixed(1) + ' ' + (T + ph) + ' '
+        + pts.map((p) => 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ')
+        + ' L' + x(n - 1).toFixed(1) + ' ' + (T + ph) + ' Z';
+
+      const gy0 = y(0), gy1 = y(ymax / 2), gy2 = y(ymax);
+      const lastIdx = n - 1, midIdx = Math.floor((n - 1) / 2);
+
+      const svg = [
+        '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img">',
+        '<line class="grid" x1="' + L + '" y1="' + gy0 + '" x2="' + (W - R) + '" y2="' + gy0 + '"/>',
+        '<line class="grid" x1="' + L + '" y1="' + gy1 + '" x2="' + (W - R) + '" y2="' + gy1 + '"/>',
+        '<line class="grid" x1="' + L + '" y1="' + gy2 + '" x2="' + (W - R) + '" y2="' + gy2 + '"/>',
+        '<text class="axis" x="' + (L - 4) + '" y="' + (gy0 + 3) + '" text-anchor="end">0</text>',
+        '<text class="axis" x="' + (L - 4) + '" y="' + (gy1 + 3) + '" text-anchor="end">' + fmt(ymax / 2) + '</text>',
+        '<text class="axis" x="' + (L - 4) + '" y="' + (gy2 + 3) + '" text-anchor="end">' + fmt(ymax) + '</text>',
+        '<path d="' + area + '" fill="#bfe6c9" fill-opacity="0.7"/>',
+        '<path d="' + line + '" fill="none" stroke="#34a853" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>',
+        '<text class="axis" x="' + x(0) + '" y="' + (H - 8) + '" text-anchor="start">' + shortDate(days[0].date) + '</text>',
+        '<text class="axis" x="' + x(midIdx) + '" y="' + (H - 8) + '" text-anchor="middle">' + shortDate(days[midIdx].date) + '</text>',
+        '<text class="axis" x="' + x(lastIdx) + '" y="' + (H - 8) + '" text-anchor="end">' + shortDate(days[lastIdx].date) + '</text>',
+        '</svg>',
+      ].join('');
+
+      document.getElementById('chart').innerHTML = svg;
+    }
+
+    function onHomeyReady(Homey) {
+      Homey.ready({ height: 240 });
+      Homey.api('GET', '/', {})
+        .then(render)
+        .catch((err) => message('Could not load data: ' + (err && err.message ? err.message : err)));
+    }
+  </script>
+</body>
+</html>
