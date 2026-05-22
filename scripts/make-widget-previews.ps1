@@ -44,5 +44,5 @@ function New-Preview {
   Write-Output "wrote $Path"
 }
 
-New-Preview (Join-Path $dir 'preview-light.png') '#ffffff' '#1b1b1b' '#bfe6c9' '#34a853'
-New-Preview (Join-Path $dir 'preview-dark.png')  '#1c1c1e' '#f4f4f5' '#2e5e3a' '#43c265'
+New-Preview (Join-Path $dir 'preview-light.png') '#ffffff' '#1b1b1b' '#fce3bd' '#f59e0b'
+New-Preview (Join-Path $dir 'preview-dark.png')  '#1c1c1e' '#f4f4f5' '#5a4012' '#f5a623'
