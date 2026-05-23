@@ -122,7 +122,7 @@ Goal: ready for publication on the Homey App Store.
 ## Phase 10 — v1.2 enhancements
 
 - [x] Add a battery percentage indicator (`measure_battery` is already a capability on the battery driver — confirm it surfaces as a tile / Energy-tab badge, and decide if an additional surface is wanted, e.g. on the inverter device tile for hybrid systems where the battery is part of the inverter setup). Decided to keep `measure_battery` only on the battery driver — per Homey best practice (one capability per device representing its actual function); duplicating onto the inverter would surface two battery-percentage readings for users who paired both.
-- [ ] Verify `measure_battery` on the battery driver surfaces correctly on real hardware — confirm the device tile shows the SoC percentage and that the battery appears in the Energy-tab Battery section (driven by `energy.homeBattery: true` in `drivers/battery/driver.compose.json`).
+- [ ] Verify `measure_battery` on the battery driver surfaces correctly on real hardware — confirm the device tile shows the SoC percentage and that the battery appears in the Energy-tab Battery section (driven by `energy.homeBattery: true` in `drivers/battery/driver.compose.json`). **Tracked in [#9](https://github.com/andersdissing/com.aiswei.solplanet/issues/9).**
 
 ---
 
@@ -137,7 +137,7 @@ Feature `feature/HomeyPower` · issue [#6](https://github.com/andersdissing/com.
 - [x] `npx homey app validate --level publish` passes.
 - [x] Hardware-validated on Solv2 via `homey app install` — `home_power`/`home_energy` track the Solplanet app's *Load* within ~1% across battery idle / discharge-to-load / discharge-to-grid states (confirmed 2026-05-21 via `scripts/testconnection.js` + data-miner). Custom caps confirmed out of Homey's energy aggregation (meter energy block contains no `home_*`).
 - [x] Add an icon to the `home_power` ("Home consumption") and `home_energy` ("Home consumption total") custom capabilities — line-art house glyphs (bolt = live power, ascending bars = cumulative), approved in-browser via `debug/preview-icons.html`. SVGs at `assets/home_power.svg` / `assets/home_energy.svg`, referenced via the `icon` field in each `.homeycompose/capabilities/*.json`. Validates clean at publish level.
-- [ ] **(Pinned / deferred)** Synthesize a cumulative battery energy counter for the `battery` driver so Homey's Battery + native Home accounting work.
+- [~] **Synthesize a cumulative battery energy counter** for the `battery` driver — issue [#10](https://github.com/andersdissing/com.aiswei.solplanet/issues/10). **Implemented** in `drivers/battery/device.js` (`_accumulateLifetime()`): builds lifetime charged/discharged from the working daily `ebi`/`ebo`, persisted in the device store; prefers the firmware lifetime (`eaci`/`eaco`) when it reports non-zero. Verified on hardware — Homey's `batteryChargedPeriod` now registers (0.1 kWh and rising, vs 0 before). **Remaining:** validate across a full day + a midnight rollover; then merge (after #8).
   - **Problem:** the inverter's lifetime battery counters `eaci` (charged) / `eaco` (discharged) read **0** on this firmware (verified 2026-05-21 — `eaci=0, eaco=0` in the same poll where `ebi=16, ebo=94`). The `homeBattery` energy block maps `meterPowerImportedCapability → meter_power.charged ← eaci` and `meterPowerExportedCapability → meter_power.discharged ← eaco`, so Homey sees **0 kWh** battery flow → the Battery tile shows "0 Wh" and the native Energy-tab "Home" residual can't balance (renders "—"; confirmed in the user's screenshot, EV/Solar/Grid all populated, Battery 0 Wh while charging at 3.4 kW).
   - **Approach:** drive the energy-block capabilities from a self-maintained accumulator built on the *working* daily counters `ebi`/`ebo` (parsed as `chargedTodayKWh`/`dischargedTodayKWh`, scale ×0.1):
     - Persist `{ lifetimeCharged, lifetimeDischarged, lastChargedToday, lastDischargedToday }` in the device **store** (`getStoreValue`/`setStoreValue`).
@@ -147,6 +147,22 @@ Feature `feature/HomeyPower` · issue [#6](https://github.com/andersdissing/com.
   - **Acceptance:** Homey Battery tile shows non-zero charged/discharged kWh tracking the inverter's daily `ebi`/`ebo`; native Energy-tab Battery daily reflects real flow. Validate with the data-miner across a full day **and** a midnight rollover.
   - **Caveats / scope:** an app cannot write the Energy-tab **Home** tile directly — this only gives Homey the data to compute its *own* residual. With `exclude_grid_exports` ON the native Home may still be inaccurate on heavy grid-export days (battery-to-grid discharge isn't seen as export). The exact household figure always stays on `home_power`/`home_energy`. Touches the shipped `battery` driver — plan migration for already-paired devices.
   - **Refs:** `lib/fields.js` (`parseBatteryData`: `ebi/ebo/eaci/eaco`), `drivers/battery/{device.js,driver.compose.json}`, `docs/energy-modeling.md`, issue [#6](https://github.com/andersdissing/com.aiswei.solplanet/issues/6).
+
+---
+
+## Phase 12 — v1.1 / "Energy import" dashboard widget
+
+Feature `feature/energy-widget` · issue [#8](https://github.com/andersdissing/com.aiswei.solplanet/issues/8). See [`energy-modeling.md`](energy-modeling.md#dashboard-widget).
+
+- [x] Scaffold the Homey dashboard widget (`widgets/energy-import/`) — `widget.compose.json`, `api.js`, `public/index.html` (vanilla inline-SVG stacked area chart, CSP-safe).
+- [x] Data via the Homey Web API (`homey-api`, `HomeyAPI.createAppAPI`) — the app SDK's `this.homey.insights` only exposes app-created logs, not device-capability logs. Added `homey-api` dep + `homey:manager:api` permission; `compatibility >= 12.1.0`; version → 1.1.0.
+- [x] Series: **grid import** (amber, meter `meter_power.imported` daily delta) + **solar self-used** (green, inverter `meter_power` − meter `meter_power.exported`, daily); drop the in-progress day. Hardware-verified.
+- [x] Colour scheme — grid = amber, solar = green, battery = blue (reserved).
+- [x] Docs — README, `docs/energy-modeling.md`, CHANGELOG.
+- [ ] Regenerate preview thumbnails to match the amber+green chart (`scripts/make-widget-previews.ps1` still draws a single amber area).
+- [ ] Open PR for #8 / merge.
+- [ ] (optional) Rename widget title "Energy import" → "Energy sources" (it now shows solar too).
+- [ ] (deferred) Add the **Solar → battery (blue)** series — needs the battery cumulative-counter fix ([#10](https://github.com/andersdissing/com.aiswei.solplanet/issues/10)).
 
 ---
 
