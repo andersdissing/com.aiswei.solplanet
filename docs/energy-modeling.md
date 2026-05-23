@@ -152,10 +152,13 @@ The app ships a Homey **dashboard widget** ("Energy import", `widgets/energy-imp
 the last 30 days of daily energy by source as a stacked area chart:
 
 - **Grid import** (amber) — the meter's `meter_power.imported`, day-over-day delta.
-- **Solar self-used** (green) — inverter PV total (`meter_power`) minus grid `meter_power.exported`,
-  per day, clamped ≥ 0. *Approximate*: battery-to-grid arbitrage inflates "exported" and understates
-  this. The precise **Solar-direct vs Solar→battery** split (the latter reserved for **blue**) awaits
-  the battery cumulative-counter fix (issue #10 / `todo.md` Phase 11).
+- **Solar direct** (green) — solar used directly = `solarSelf − solarToBattery`, where
+  `solarSelf` = inverter PV total (`meter_power`) − grid `meter_power.exported`.
+- **Solar → battery** (blue) — battery `meter_power.charged` daily delta, capped at `solarSelf`.
+
+*Approximate*: this system charges/discharges the battery to/from the grid (arbitrage), so the solar
+split is an estimate. The blue band only fills from the first complete day **after** the
+battery-counter fix (#10) — its synthesized counter accumulates from install.
 
 `widgets/energy-import/api.js` calls `app.getEnergyImportSeries()`, which reads the Insights logs via
 the **Homey Web API** (`homey-api`, `HomeyAPI.createAppAPI`) — the app SDK's own `this.homey.insights`

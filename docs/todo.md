@@ -162,7 +162,7 @@ Feature `feature/energy-widget` · issue [#8](https://github.com/andersdissing/c
 - [ ] Regenerate preview thumbnails to match the amber+green chart (`scripts/make-widget-previews.ps1` still draws a single amber area).
 - [ ] Open PR for #8 / merge.
 - [ ] (optional) Rename widget title "Energy import" → "Energy sources" (it now shows solar too).
-- [ ] (deferred) Add the **Solar → battery (blue)** series — needs the battery cumulative-counter fix ([#10](https://github.com/andersdissing/com.aiswei.solplanet/issues/10)).
+- [x] Add the **Solar → battery (blue)** series — splits solar into *direct* (green) + *to-battery* (blue) using the battery `meter_power.charged` daily delta, now that the counter fix (#10/#11) is merged into this branch. Blue band fills from the first complete day after the fix.
 
 ---
 
