@@ -19,15 +19,15 @@ class SolplanetApp extends Homey.App {
   }
 
   // Daily energy-source series for the last 30 days, for the dashboard widget.
-  // Returns { unit, days: [{ date, gridImport, solarSelf }], status }.
-  //   gridImport — meter `meter_power.imported`, daily delta.
-  //   solarSelf  — inverter `meter_power` (PV total) − meter `meter_power.exported`,
-  //                daily, clamped ≥ 0. APPROXIMATE: this system can discharge the
-  //                battery to the grid, which inflates `exported` and understates
-  //                solarSelf (the proper solar/battery split needs the pinned
-  //                battery cumulative-counter fix — see docs/energy-modeling.md).
-  // All logs read via the Homey Web API (homey-api); the app SDK's own insights
-  // manager only exposes app-created logs, not device-capability logs.
+  // Returns { unit, days: [{ date, gridImport, solarDirect, solarToBattery }], status }.
+  //   gridImport     — meter `meter_power.imported`, daily delta.
+  //   solarSelf      — inverter `meter_power` (PV total) − meter `meter_power.exported`,
+  //                    daily, clamped ≥ 0 (solar that stayed in the house).
+  //   solarToBattery — battery `meter_power.charged` daily, capped at solarSelf.
+  //   solarDirect    — solarSelf − solarToBattery (solar used directly).
+  // APPROXIMATE: this system can charge/discharge the battery to/from the grid
+  // (arbitrage), so the split is an estimate. All logs read via the Homey Web API
+  // (homey-api); the app SDK's insights manager only exposes app-created logs.
   async getEnergyImportSeries() {
     const out = { unit: 'kWh', days: [], status: 'ok' };
     try {
@@ -38,6 +38,7 @@ class SolplanetApp extends Homey.App {
 
       const meter = find('meter');
       const inverter = find('inverter');
+      const battery = find('battery');
       if (!meter) {
         out.status = `no-meter-device [n=${all.length}]`;
         return out;
@@ -47,6 +48,9 @@ class SolplanetApp extends Homey.App {
       const exportMap = await this._dailyDeltaMap(api, `homey:device:${meter.id}:meter_power.exported`);
       const genMap = inverter
         ? await this._dailyDeltaMap(api, `homey:device:${inverter.id}:meter_power`)
+        : new Map();
+      const chargedMap = battery
+        ? await this._dailyDeltaMap(api, `homey:device:${battery.id}:meter_power.charged`)
         : new Map();
 
       // Drop the current, still-incomplete day (its partial daily total dips to ~0
@@ -62,11 +66,13 @@ class SolplanetApp extends Homey.App {
         const gridImport = importMap.get(date) || 0;
         const gen = genMap.get(date) || 0;
         const exp = exportMap.get(date) || 0;
-        return {
-          date,
-          gridImport,
-          solarSelf: Math.max(0, Math.round((gen - exp) * 100) / 100),
-        };
+        const solarSelf = Math.max(0, Math.round((gen - exp) * 100) / 100);
+        // Split solar self-used into "to battery" (solar that charged the battery)
+        // and "direct". Cap to-battery at solarSelf so the two sum to solarSelf
+        // (grid-charging — this system does arbitrage — isn't counted as solar).
+        const solarToBattery = Math.min(solarSelf, chargedMap.get(date) || 0);
+        const solarDirect = Math.max(0, Math.round((solarSelf - solarToBattery) * 100) / 100);
+        return { date, gridImport, solarDirect, solarToBattery };
       });
       if (!out.days.length) out.status = 'no-data';
     } catch (err) {

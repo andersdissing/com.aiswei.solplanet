@@ -12,7 +12,7 @@
     svg { display: block; width: 100%; height: auto; }
     .axis { fill: #999; font-size: 9px; }
     .grid { stroke: #ececec; stroke-width: 1; }
-    .legend { display: flex; gap: 16px; font-size: 11px; color: #555; margin-top: 4px; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #555; margin-top: 4px; }
     .legend span { display: inline-flex; align-items: center; gap: 5px; }
     .sw { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
   </style>
@@ -26,10 +26,10 @@
   </div>
 
   <script type="text/javascript">
-    // Colour scheme: grid import = amber/orange · solar = green · battery = blue (reserved).
+    // Colour scheme: grid import = amber/orange · solar (direct) = green · solar→battery = blue.
     var IMPORT = { line: '#f59e0b', fill: '#fbe2b6' };
     var SOLAR = { line: '#34a853', fill: '#cdebd6' };
-    var BATTERY = { line: '#3b82f6', fill: '#d3e4fc' }; // eslint-disable-line no-unused-vars -- reserved for the future battery series
+    var BATTERY = { line: '#3b82f6', fill: '#d3e4fc' };
 
     function fmt(n) { return (Math.round(n * 10) / 10).toLocaleString(); }
 
@@ -63,18 +63,24 @@
         return message('Collecting data — needs at least two days.');
       }
 
-      var impTotal = days.reduce(function (s, d) { return s + (d.gridImport || 0); }, 0);
-      var solTotal = days.reduce(function (s, d) { return s + (d.solarSelf || 0); }, 0);
-      sub.textContent = 'Last ' + days.length + ' days · grid ' + fmt(impTotal) + ' · solar ' + fmt(solTotal) + ' kWh';
+      var gridT = days.reduce(function (s, d) { return s + (d.gridImport || 0); }, 0);
+      var dirT = days.reduce(function (s, d) { return s + (d.solarDirect || 0); }, 0);
+      var batT = days.reduce(function (s, d) { return s + (d.solarToBattery || 0); }, 0);
+      sub.textContent = 'Last ' + days.length + ' days · grid ' + fmt(gridT) + ' · solar ' + fmt(dirT + batT) + ' kWh';
 
       var W = 600, H = 200, L = 38, R = 10, T = 10, B = 26;
       var pw = W - L - R, ph = H - T - B, n = days.length;
-      var ymax = niceMax(Math.max.apply(null, days.map(function (d) { return (d.gridImport || 0) + (d.solarSelf || 0); })));
+
+      var imp = days.map(function (d) { return d.gridImport || 0; });
+      var s1 = days.map(function (d, i) { return imp[i] + (d.solarDirect || 0); });        // grid + direct
+      var s2 = days.map(function (d, i) { return s1[i] + (d.solarToBattery || 0); });       // + to-battery
+      var zero = days.map(function () { return 0; });
+
+      var ymax = niceMax(Math.max.apply(null, s2));
 
       function x(i) { return L + (n === 1 ? pw / 2 : (i * pw) / (n - 1)); }
       function y(v) { return T + ph - (v / ymax) * ph; }
 
-      // Stacked band between lo[] and hi[] value arrays.
       function band(lo, hi) {
         var p = '';
         for (var i = 0; i < n; i++) p += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(hi[i]).toFixed(1) + ' ';
@@ -86,10 +92,6 @@
         for (var i = 0; i < n; i++) p += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(vals[i]).toFixed(1) + ' ';
         return p;
       }
-
-      var imp = days.map(function (d) { return d.gridImport || 0; });
-      var stack = days.map(function (d) { return (d.gridImport || 0) + (d.solarSelf || 0); });
-      var zero = days.map(function () { return 0; });
 
       var gy0 = y(0), gy1 = y(ymax / 2), gy2 = y(ymax);
       var mid = Math.floor((n - 1) / 2), last = n - 1;
@@ -103,9 +105,11 @@
         '<text class="axis" x="' + (L - 4) + '" y="' + (gy1 + 3) + '" text-anchor="end">' + fmt(ymax / 2) + '</text>',
         '<text class="axis" x="' + (L - 4) + '" y="' + (gy2 + 3) + '" text-anchor="end">' + fmt(ymax) + '</text>',
         '<path d="' + band(zero, imp) + '" fill="' + IMPORT.fill + '" fill-opacity="0.85"/>',
-        '<path d="' + band(imp, stack) + '" fill="' + SOLAR.fill + '" fill-opacity="0.85"/>',
-        '<path d="' + topLine(imp) + '" fill="none" stroke="' + IMPORT.line + '" stroke-width="1.6" stroke-linejoin="round"/>',
-        '<path d="' + topLine(stack) + '" fill="none" stroke="' + SOLAR.line + '" stroke-width="1.6" stroke-linejoin="round"/>',
+        '<path d="' + band(imp, s1) + '" fill="' + SOLAR.fill + '" fill-opacity="0.85"/>',
+        '<path d="' + band(s1, s2) + '" fill="' + BATTERY.fill + '" fill-opacity="0.85"/>',
+        '<path d="' + topLine(imp) + '" fill="none" stroke="' + IMPORT.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
+        '<path d="' + topLine(s1) + '" fill="none" stroke="' + SOLAR.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
+        '<path d="' + topLine(s2) + '" fill="none" stroke="' + BATTERY.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
         '<text class="axis" x="' + x(0) + '" y="' + (H - 8) + '" text-anchor="start">' + shortDate(days[0].date) + '</text>',
         '<text class="axis" x="' + x(mid) + '" y="' + (H - 8) + '" text-anchor="middle">' + shortDate(days[mid].date) + '</text>',
         '<text class="axis" x="' + x(last) + '" y="' + (H - 8) + '" text-anchor="end">' + shortDate(days[last].date) + '</text>',
@@ -115,7 +119,8 @@
       document.getElementById('chart').innerHTML = svg;
       document.getElementById('legend').innerHTML =
         '<span><i class="sw" style="background:' + IMPORT.line + '"></i>Grid import</span>'
-        + '<span><i class="sw" style="background:' + SOLAR.line + '"></i>Solar self-used*</span>';
+        + '<span><i class="sw" style="background:' + SOLAR.line + '"></i>Solar direct</span>'
+        + '<span><i class="sw" style="background:' + BATTERY.line + '"></i>Solar → battery</span>';
     }
 
     function onHomeyReady(Homey) {
