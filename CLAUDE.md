@@ -32,9 +32,10 @@ Edit the **compose sources**, not `app.json` directly — the validator regenera
 
 ## Repo layout (high level)
 
-- `app.js` — minimal `Homey.App` bootstrap.
+- `app.js` — `Homey.App` bootstrap; also exposes `getEnergyImportSeries()` for the dashboard widget (reads device Insights via `homey-api`).
 - `lib/` — shared code: `SolplanetClient`, `SolplanetApi`, `SolplanetCoordinator` (singleton poller), `InverterDevice` (shared device base class), `pairing`, `discovery`, `repair`, `fields`.
 - `drivers/{inverter,battery,meter}/` — each has `driver.compose.json`, `driver.js`, `device.js`, `assets/`, `pair/`, `repair/`.
+- `widgets/energy-import/` — "Energy import" Homey dashboard widget (`widget.compose.json`, `api.js`, `public/`). Reads Insights via `homey-api` (needs the `homey:manager:api` permission; widgets need `compatibility >=12.1.0`).
 - `scripts/` — generators & one-off tooling (image resizers, view sync, data miner, compare). See note below.
 - `docs/` — project docs (architecture, todo, data-mining, energy-modeling, pairing-ux, publishing-checklist).
 - `debug/` — gitignored snapshot output from `npm run mine`.

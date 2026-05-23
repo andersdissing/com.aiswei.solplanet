@@ -8,6 +8,7 @@ A Homey app for **Solplanet / AISWEI hybrid solar inverters** that surfaces sola
 - **Battery tile** — state-of-charge, signed power flow (charging / discharging), cumulative charged & discharged energy
 - **Grid tile** — whole-home grid power, cumulative imported & exported energy
 - **Home consumption** — exposed as `home_power` (live W) and `home_energy` (lifetime kWh) on the Grid Meter device, derived from the inverter's AC output plus grid flow (`pac + grid`); graphable in Insights and usable in Flows. (Homey's Energy-tab *Home* tile is a separate, Homey-computed residual — see [`docs/energy-modeling.md`](./docs/energy-modeling.md).)
+- **Dashboard widget — "Energy import"** — a Homey dashboard widget charting daily **grid import** (amber) and **solar self-used** (green) over the last 30 days, reading history from Homey Insights via the Web API (`homey-api`). See [`docs/energy-modeling.md`](./docs/energy-modeling.md#dashboard-widget).
 
 Pricing/tariff is delegated to whichever tariff app you already use (Tibber, Nordpool, etc.). This app emits clean kWh meters; Homey does the cost math.
 
@@ -111,7 +112,7 @@ See `docs/energy-modeling.md` and `docs/pairing-ux.md` for more.
 ## Development
 
 ```sh
-npm install               # only needed once; v1 has zero runtime deps
+npm install               # installs runtime deps (homey-api — used by the Energy import widget to read Insights)
 homey app run             # dev mode against your real Homey
 homey app validate        # debug-level validation
 ```

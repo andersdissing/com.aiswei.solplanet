@@ -2,6 +2,15 @@
 
 All notable changes to `com.aiswei.solplanet` are recorded here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows [SemVer](https://semver.org/).
 
+## [1.1.0] — Unreleased
+
+### Added
+- **"Energy import" dashboard widget** (`widgets/energy-import/`) — a Homey dashboard widget charting the last 30 days of daily **grid import** (amber) and **solar self-used** (green) as a stacked area chart. Reads Insights history via the Homey Web API (`homey-api`); the app SDK's own insights manager only exposes app-created logs, not device-capability logs. Solar self-used = inverter PV total − grid export (approximate — the Solar-direct vs Solar→battery split, reserved **blue**, awaits the battery-counter fix, #10). The in-progress day is dropped so the chart ends on the last complete day. See [`docs/energy-modeling.md`](./docs/energy-modeling.md#dashboard-widget).
+
+### Changed
+- Added `homey-api` as a runtime dependency and the `homey:manager:api` permission (required to read device Insights logs from within the app).
+- Bumped `compatibility` to `>=12.1.0` (Homey dashboard widgets require it).
+
 ## [1.0.2] — Unreleased
 
 ### Added

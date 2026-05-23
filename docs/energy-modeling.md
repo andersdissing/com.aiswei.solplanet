@@ -144,6 +144,23 @@ See the capability table in [`README.md`](../README.md#capabilities) or the `dri
 
 This app does **not** declare any pricing capability. Homey reads tariff data from a separate user-installed tariff app (Tibber, Nordpool, etc.) and applies it to the kWh meters this app emits. From the inverter's side, the only contract is: emit clean monotonic kWh counters with the right capability IDs and the right `energy` block flags.
 
+## Dashboard widget
+
+The app ships a Homey **dashboard widget** ("Energy import", `widgets/energy-import/`) that charts
+the last 30 days of daily energy by source as a stacked area chart:
+
+- **Grid import** (amber) — the meter's `meter_power.imported`, day-over-day delta.
+- **Solar self-used** (green) — inverter PV total (`meter_power`) minus grid `meter_power.exported`,
+  per day, clamped ≥ 0. *Approximate*: battery-to-grid arbitrage inflates "exported" and understates
+  this. The precise **Solar-direct vs Solar→battery** split (the latter reserved for **blue**) awaits
+  the battery cumulative-counter fix (issue #10 / `todo.md` Phase 11).
+
+`widgets/energy-import/api.js` calls `app.getEnergyImportSeries()`, which reads the Insights logs via
+the **Homey Web API** (`homey-api`, `HomeyAPI.createAppAPI`) — the app SDK's own `this.homey.insights`
+only exposes app-created logs, not device-capability logs. This is why the app declares the
+`homey:manager:api` permission and depends on `homey-api`. The current incomplete day is dropped so
+the chart ends on the last complete day. Widgets require `compatibility >= 12.1.0`.
+
 ## References
 
 - Energy SDK: https://apps.developer.homey.app/wireless/energy
