@@ -109,8 +109,10 @@ Repair needed.
 An app **cannot** write the Energy-tab **Home** tile directly — Homey derives it. On firmware where
 the inverter's lifetime battery counters (`eaci` / `eaco`) read 0, Homey's Battery (and therefore
 Home) accounting can't balance and the tile may render "—". The accurate figure always lives on
-`home_power` / `home_energy`. Closing the native tile would require synthesizing a cumulative
-battery counter — see the pinned task in [`todo.md`](./todo.md).
+`home_power` / `home_energy`. The battery driver now **synthesizes** a cumulative counter from the
+working daily `ebi`/`ebo` (issue #10, `drivers/battery/device.js → _accumulateLifetime()`), so Homey
+registers battery energy again and its residual can balance — though the native Home tile's accuracy
+during export still depends on the `exclude_grid_exports` setting.
 
 ## The reference-app modeling bug we fixed
 
