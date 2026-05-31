@@ -3,26 +3,29 @@
 <head>
   <meta charset="utf-8">
   <style>
-    html, body { margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; color: #1b1b1b; }
+    html, body { margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; color: #1b1b1b;
+      -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-touch-callout: none; }
     .wrap { padding: 12px 14px 8px; }
     .title { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
     .title .bolt { color: #F6405F; }
-    .sub { font-size: 11px; color: #777; margin-bottom: 4px; }
+    .sub { font-size: 11px; color: #777; margin-bottom: 4px; min-height: 13px; }
     .msg { font-size: 12px; color: #888; padding: 28px 0; text-align: center; }
+    #chart { touch-action: none; }
     svg { display: block; width: 100%; height: auto; }
     .axis { fill: #999; font-size: 9px; }
     .grid { stroke: #ececec; stroke-width: 1; }
-    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #555; margin-top: 4px; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; align-content: flex-start; min-height: 30px; font-size: 11px; color: #555; margin: 2px 0 6px; }
     .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend b { color: #1b1b1b; }
     .sw { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="title"><span class="bolt">⚡</span><span>Energy import</span></div>
+    <div id="legend" class="legend"></div>
     <div id="sub" class="sub"></div>
     <div id="chart"></div>
-    <div id="legend" class="legend"></div>
   </div>
 
   <script type="text/javascript">
@@ -30,6 +33,9 @@
     var IMPORT = { line: '#f59e0b', fill: '#fbe2b6' };
     var SOLAR = { line: '#34a853', fill: '#cdebd6' };
     var BATTERY = { line: '#3b82f6', fill: '#d3e4fc' };
+
+    var CHART = null; // interaction state, set by render()
+    var FIT = function () {}; // set in onHomeyReady; re-fits the widget height
 
     function fmt(n) { return (Math.round(n * 10) / 10).toLocaleString(); }
 
@@ -48,6 +54,19 @@
     function message(text) {
       document.getElementById('chart').innerHTML = '<div class="msg">' + text + '</div>';
       document.getElementById('legend').innerHTML = '';
+      CHART = null;
+    }
+
+    // Legend; pass per-day values { g, d, b } to append them, or null for plain labels.
+    function legend(vals) {
+      function item(color, label, v) {
+        return '<span><i class="sw" style="background:' + color + '"></i>' + label
+          + (vals ? ' <b>' + fmt(v) + '</b>' : '') + '</span>';
+      }
+      document.getElementById('legend').innerHTML =
+        item(IMPORT.line, 'Grid import', vals && vals.g)
+        + item(SOLAR.line, 'Solar direct', vals && vals.d)
+        + item(BATTERY.line, 'Solar → battery', vals && vals.b);
     }
 
     function render(data) {
@@ -66,31 +85,30 @@
       var gridT = days.reduce(function (s, d) { return s + (d.gridImport || 0); }, 0);
       var dirT = days.reduce(function (s, d) { return s + (d.solarDirect || 0); }, 0);
       var batT = days.reduce(function (s, d) { return s + (d.solarToBattery || 0); }, 0);
-      sub.textContent = 'Last ' + days.length + ' days · grid ' + fmt(gridT) + ' · solar ' + fmt(dirT + batT) + ' kWh';
+      var subDefault = 'Last ' + days.length + ' days · grid ' + fmt(gridT) + ' · solar ' + fmt(dirT + batT) + ' kWh';
+      sub.textContent = subDefault;
 
       var W = 600, H = 200, L = 38, R = 10, T = 10, B = 26;
       var pw = W - L - R, ph = H - T - B, n = days.length;
 
-      var imp = days.map(function (d) { return d.gridImport || 0; });
-      var s1 = days.map(function (d, i) { return imp[i] + (d.solarDirect || 0); });        // grid + direct
-      var s2 = days.map(function (d, i) { return s1[i] + (d.solarToBattery || 0); });       // + to-battery
-      var zero = days.map(function () { return 0; });
+      var gridV = days.map(function (d) { return d.gridImport || 0; });
+      var dirV = days.map(function (d) { return d.solarDirect || 0; });
+      var batV = days.map(function (d) { return d.solarToBattery || 0; });
 
-      var ymax = niceMax(Math.max.apply(null, s2));
+      var ymax = niceMax(Math.max.apply(null, gridV.concat(dirV, batV)));
 
       function x(i) { return L + (n === 1 ? pw / 2 : (i * pw) / (n - 1)); }
       function y(v) { return T + ph - (v / ymax) * ph; }
 
-      function band(lo, hi) {
-        var p = '';
-        for (var i = 0; i < n; i++) p += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(hi[i]).toFixed(1) + ' ';
-        for (var j = n - 1; j >= 0; j--) p += 'L' + x(j).toFixed(1) + ' ' + y(lo[j]).toFixed(1) + ' ';
-        return p + 'Z';
-      }
-      function topLine(vals) {
+      function line(vals) {
         var p = '';
         for (var i = 0; i < n; i++) p += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(vals[i]).toFixed(1) + ' ';
         return p;
+      }
+      function area(vals) {
+        var p = 'M' + x(0).toFixed(1) + ' ' + y(0).toFixed(1) + ' ';
+        for (var i = 0; i < n; i++) p += 'L' + x(i).toFixed(1) + ' ' + y(vals[i]).toFixed(1) + ' ';
+        return p + 'L' + x(n - 1).toFixed(1) + ' ' + y(0).toFixed(1) + ' Z';
       }
 
       var gy0 = y(0), gy1 = y(ymax / 2), gy2 = y(ymax);
@@ -104,30 +122,96 @@
         '<text class="axis" x="' + (L - 4) + '" y="' + (gy0 + 3) + '" text-anchor="end">0</text>',
         '<text class="axis" x="' + (L - 4) + '" y="' + (gy1 + 3) + '" text-anchor="end">' + fmt(ymax / 2) + '</text>',
         '<text class="axis" x="' + (L - 4) + '" y="' + (gy2 + 3) + '" text-anchor="end">' + fmt(ymax) + '</text>',
-        '<path d="' + band(zero, imp) + '" fill="' + IMPORT.fill + '" fill-opacity="0.85"/>',
-        '<path d="' + band(imp, s1) + '" fill="' + SOLAR.fill + '" fill-opacity="0.85"/>',
-        '<path d="' + band(s1, s2) + '" fill="' + BATTERY.fill + '" fill-opacity="0.85"/>',
-        '<path d="' + topLine(imp) + '" fill="none" stroke="' + IMPORT.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
-        '<path d="' + topLine(s1) + '" fill="none" stroke="' + SOLAR.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
-        '<path d="' + topLine(s2) + '" fill="none" stroke="' + BATTERY.line + '" stroke-width="1.4" stroke-linejoin="round"/>',
+        '<path d="' + area(gridV) + '" fill="' + IMPORT.line + '" fill-opacity="0.15" stroke="none"/>',
+        '<path d="' + area(dirV) + '" fill="' + SOLAR.line + '" fill-opacity="0.15" stroke="none"/>',
+        '<path d="' + area(batV) + '" fill="' + BATTERY.line + '" fill-opacity="0.15" stroke="none"/>',
+        '<path d="' + line(gridV) + '" fill="none" stroke="' + IMPORT.line + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
+        '<path d="' + line(dirV) + '" fill="none" stroke="' + SOLAR.line + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
+        '<path d="' + line(batV) + '" fill="none" stroke="' + BATTERY.line + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
         '<text class="axis" x="' + x(0) + '" y="' + (H - 8) + '" text-anchor="start">' + shortDate(days[0].date) + '</text>',
         '<text class="axis" x="' + x(mid) + '" y="' + (H - 8) + '" text-anchor="middle">' + shortDate(days[mid].date) + '</text>',
         '<text class="axis" x="' + x(last) + '" y="' + (H - 8) + '" text-anchor="end">' + shortDate(days[last].date) + '</text>',
+        '<line id="cursor" x1="0" y1="' + T + '" x2="0" y2="' + gy0 + '" stroke="#9aa0a6" stroke-width="1" stroke-dasharray="3 3" visibility="hidden"/>',
+        '<circle id="dotG" r="3.4" fill="' + IMPORT.line + '" visibility="hidden"/>',
+        '<circle id="dotS" r="3.4" fill="' + SOLAR.line + '" visibility="hidden"/>',
+        '<circle id="dotB" r="3.4" fill="' + BATTERY.line + '" visibility="hidden"/>',
         '</svg>',
       ].join('');
 
       document.getElementById('chart').innerHTML = svg;
-      document.getElementById('legend').innerHTML =
-        '<span><i class="sw" style="background:' + IMPORT.line + '"></i>Grid import</span>'
-        + '<span><i class="sw" style="background:' + SOLAR.line + '"></i>Solar direct</span>'
-        + '<span><i class="sw" style="background:' + BATTERY.line + '"></i>Solar → battery</span>';
+      legend(null);
+
+      CHART = { days: days, n: n, W: W, L: L, pw: pw, x: x, y: y, gridV: gridV, dirV: dirV, batV: batV, subDefault: subDefault };
+    }
+
+    function setDot(id, cx, cy) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('cx', cx.toFixed(1));
+      el.setAttribute('cy', cy.toFixed(1));
+      el.setAttribute('visibility', 'visible');
+    }
+
+    function showAt(i) {
+      var c = CHART;
+      if (!c) return;
+      var X = c.x(i);
+      var cur = document.getElementById('cursor');
+      if (cur) { cur.setAttribute('x1', X.toFixed(1)); cur.setAttribute('x2', X.toFixed(1)); cur.setAttribute('visibility', 'visible'); }
+      setDot('dotG', X, c.y(c.gridV[i]));
+      setDot('dotS', X, c.y(c.dirV[i]));
+      setDot('dotB', X, c.y(c.batV[i]));
+      legend({ g: c.gridV[i], d: c.dirV[i], b: c.batV[i] });
+      document.getElementById('sub').textContent = shortDate(c.days[i].date) + ' · kWh';
+      FIT();
+    }
+
+    function hideCursor() {
+      if (!CHART) return;
+      ['cursor', 'dotG', 'dotS', 'dotB'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute('visibility', 'hidden');
+      });
+      legend(null);
+      document.getElementById('sub').textContent = CHART.subDefault;
+      FIT();
+    }
+
+    function indexFromEvent(ev) {
+      var c = CHART;
+      if (!c) return -1;
+      var svg = document.querySelector('#chart svg');
+      if (!svg) return -1;
+      var rect = svg.getBoundingClientRect();
+      if (!rect.width) return -1;
+      var clientX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+      if (clientX == null) return -1;
+      var vbx = (clientX - rect.left) / rect.width * c.W;
+      var i = Math.round((vbx - c.L) * (c.n - 1) / c.pw);
+      return Math.max(0, Math.min(c.n - 1, i));
     }
 
     function onHomeyReady(Homey) {
-      Homey.ready({ height: 260 });
+      var lastH = 0;
+      function fit() {
+        var h = Math.ceil(document.body.scrollHeight);
+        if (h > 10 && h !== lastH) { lastH = h; Homey.setHeight(h); }
+      }
+      FIT = fit;
+      var chart = document.getElementById('chart');
+      function track(ev) { var i = indexFromEvent(ev); if (i >= 0) showAt(i); }
+      chart.addEventListener('pointerdown', track);
+      chart.addEventListener('pointermove', track);
+      chart.addEventListener('pointerup', hideCursor);
+      chart.addEventListener('pointerleave', hideCursor);
+      chart.addEventListener('pointercancel', hideCursor);
+
+      window.addEventListener('resize', function () { setTimeout(fit, 60); });
+      Homey.ready();
       Homey.api('GET', '/', {})
         .then(render)
-        .catch(function (err) { message('Could not load data: ' + (err && err.message ? err.message : err)); });
+        .catch(function (err) { message('Could not load data: ' + (err && err.message ? err.message : err)); })
+        .then(function () { setTimeout(fit, 50); });
     }
   </script>
 </body>
